@@ -14,8 +14,8 @@ import 'ag-grid-community/dist/styles/ag-theme-material.css';
 import {LicenseManager} from 'ag-grid-enterprise';
 import '@material-ui/icons';
 
-LicenseManager.setLicenseKey(process.env.REACT_APP_AGGRID_KEY);
-
+//LicenseManager.setLicenseKey(process.env.REACT_APP_AGGRID_KEY);
+LicenseManager.setLicenseKey("Foundation_Source_Philanthropic_Inc__Foundation_Source___3Devs2_SaaS_21_December_2019__MTU3Njg4NjQwMDAwMA==ee8b7707231e7b40f6e71ec9bf87a7f1"); //MA Changes
 let isRendered = false;
 const renderApp = () => {
     if (!isRendered) {
