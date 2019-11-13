@@ -1,0 +1,30 @@
+name: Build on develop (east1)
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Deploy
+        env:
+          project: "cp-cdo-develop-atlas-b80a"
+          serviceaccount: "cp-cdo-develop-atlas-b80a-5573bdbee2bc.json"
+          NETWORK_NAME: "atlas-develop"
+          DECRYPTION_KEY: "${{ secrets.DECRYPTION_KEY }}"
+          REACT_APP_API_URL: "https://atlas-api-dot-cp-cdo-develop-atlas-b80a.appspot.com"
+          REACT_APP_AGGRID_KEY: "%{{ secrets.AGGRID_KEY }}"
+          NODE_OPTIONS: '--max_old_space_size=4096'
+          REACT_APP_IS_APP_ENGINE: "true"
+          REACT_APP_FIREBASE_API_KEY: "AIzaSyC59SUHJNpdaJSdYMpzXZJnVlX_efSfrJI"
+          REACT_APP_FIREBASE_AUTH_DOM: "cp-cdo-develop-atlas-b80a.firebaseapp.com"
+          REACT_APP_FIREBASE_DB_URL: "https://cp-cdo-develop-atlas-b80a.firebaseio.com"
+          REACT_APP_FIREBASE_PROJ_ID: "cp-cdo-develop-atlas-b80a"
+          REACT_APP_FIREBASE_BUCKET: "cp-cdo-develop-atlas-b80a.appspot.com"
+          REACT_APP_FIREBASE_MSG_SENDER_ID: "582590414146"
+          REACT_APP_FIREBASE_APP_ID: "1:582590414146:web:86b60d233b920a36dfdcdb"
+        run: sh "./deploy.sh"

@@ -1,0 +1,30 @@
+name: Build on qa
+
+on:
+  push:
+    branches:
+      - qa
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Deploy
+        env:
+          project: "cp-cdo-test-atlas"
+          serviceaccount: "cp-cdo-dev-atlas-deploy-4141d5c86ea6.json"
+          DECRYPTION_KEY: "${{ secrets.DECRYPTION_KEY }}"
+          REACT_APP_API_URL: "https://atlas-api-dot-cp-cdo-test-atlas.appspot.com"
+          REACT_APP_AGGRID_KEY: "%{{ secrets.AGGRID_KEY }}"
+          NODE_OPTIONS: '--max_old_space_size=4096'
+          REACT_APP_IS_APP_ENGINE: true
+          REACT_APP_FIREBASE_API_KEY: "AIzaSyDrTpOijMWr6p3aMREfDfzIUQ8msLeyTus"
+          REACT_APP_FIREBASE_AUTH_DOM: "cp-cdo-dev-atlas.firebaseapp.com"
+          REACT_APP_FIREBASE_DB_URL: "https://cp-cdo-dev-atlas.firebaseio.com"
+          REACT_APP_FIREBASE_PROJ_ID: "cp-cdo-dev-atlas"
+          REACT_APP_FIREBASE_BUCKET: "cp-cdo-dev-atlas.appspot.com"
+          REACT_APP_FIREBASE_MSG_SENDER_ID: "85094102342"
+          REACT_APP_FIREBASE_APP_ID: "1:85094102342:web:68a196570e5fd52b"
+        run: sh "./deploy.sh"
+
