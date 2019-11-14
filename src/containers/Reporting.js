@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { AgGridReact } from 'ag-grid-react';
 import { connect } from 'react-redux';
-import * as actions from '../redux/aggrid/actions';
+import * as actions from '../redux/reporting/actions';
 import './ag_grid_style.css';
 // import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import $ from 'jquery';
 
-class AgGrid extends Component {
+class Reporting extends Component {
   constructor(props) {
     super(props);
     this.applyFilter = this.applyFilter.bind(this);
@@ -792,4 +792,4 @@ const mapDispatchToProps = dispatch => {
   }, dispatch);
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AgGrid)
+export default connect(mapStateToProps, mapDispatchToProps)(Reporting)

@@ -119,9 +119,13 @@ export const restrictedRoutes = [
         component: asyncComponent(() => import('../DirectTradeAssortment'))
     },
     {
-        path: '/aggrid', //MA Changes
-        component: asyncComponent(() => import('../AgGrid'))
+        path: '/reporting', //MA Changes
+        component: asyncComponent(() => import('../Reporting'))
     },
+    //, {
+    //     path: '/aggrid', //MA Changes
+    //     component: asyncComponent(() => import('../AgGrid'))
+    // },
 ];
 
 export class AppRouter extends Component {
