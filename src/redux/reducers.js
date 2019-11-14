@@ -12,7 +12,7 @@ import SalesOrgDefaults from './salesorgDefaults/reducers';
 import Attributes from './attributes/reducers';
 import UserSettings from './userSettings/reducers';
 import Assortments from './assortment/reducers';
-import GridView from './aggrid/reducers';//MA Changes
+import GridView from './reporting/reducers';//MA Changes
 
 export default {
   Auth,

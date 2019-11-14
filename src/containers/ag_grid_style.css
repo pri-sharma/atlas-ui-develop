@@ -529,12 +529,15 @@
     padding-top: 4px;
   }
   .savedview{
-    float: right;
+    float: right !important;
     position: absolute;
     left: auto !important;
     /* right:13px !important; */
-    top:75% !important;
+    top:15% !important;
     width: auto;
+
+    z-index: 1;
+    background-color: white;
   }
   
   .showLoader

@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { AgGridReact } from 'ag-grid-react';
 import { connect } from 'react-redux';
-import * as actions from '../redux/reporting/actions';
-import './ag_grid_style.css';
-// import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import * as actions from '../../redux/reporting/actions';
+import '../ag_grid_style.css';
+// import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import loader from '../../images/loader.gif';
 import $ from 'jquery';
 
-class Reporting extends Component {
+class ReportView extends Component {
   constructor(props) {
     super(props);
     this.applyFilter = this.applyFilter.bind(this);
@@ -111,7 +112,6 @@ class Reporting extends Component {
 
     error: null,
     recordCount: 0,
-    appurl: 'https://online.qa1.fs.local/dynamic/assets/',
     //displayChoosedView: "My List Views",
     displayChoosedView: "18K",
     viewName: "",
@@ -625,7 +625,7 @@ class Reporting extends Component {
       <div>
         <div id="updateProgress" style={{ display: "none" }} role="status" aria-hidden="true">
           <div className="updateProgress">
-            <img id="imgUpdateProgress" title="Loading ..." src={this.state.appurl + "loader.gif"} alt="Loading ..."
+            <img id="imgUpdateProgress" title="Loading ..." src ={loader} alt="Loading ..."
               style={{ padding: "10px", position: "fixed", top: "30%", left: "45%" }}></img>
           </div>
         </div>
@@ -640,11 +640,6 @@ class Reporting extends Component {
           }}
         >
           <div className="gridcontainer row header" layout-xs="column" layout="row" style={{ backgroundColor: '#e3f0f5', height: "auto" }}>
-            {/* <div id="headercontainer" className="headercontainer">
-              <div className="logo">
-                
-              </div>
-            </div> */}
             <div id="filtercontainer" style={{ marginTop: "67px" }} className="filtercontainer ui-inputtext">
               <div className="card">
                 <div className="card-header" id="headingOne">
@@ -792,4 +787,4 @@ const mapDispatchToProps = dispatch => {
   }, dispatch);
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Reporting)
+export default connect(mapStateToProps, mapDispatchToProps)(ReportView)
