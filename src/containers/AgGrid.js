@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { AgGridReact } from 'ag-grid-react';
 import { connect } from 'react-redux';
 import * as actions from '../redux/aggrid/actions';
-import  './ag_grid_style.css';
+import './ag_grid_style.css';
 import $ from 'jquery';
 
 class AgGrid extends Component {
@@ -16,32 +16,10 @@ class AgGrid extends Component {
     this.createViewList = this.createViewList.bind(this);
     this.filterViewList = this.filterViewList.bind(this);
   }
-  // UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
-  //   console.log(nextProps.assortments)
-  //   this.setState({
-  //     columnDefs: nextProps.gridviewstructure
-  //   })
-  // }
-  async componentDidMount() {
-    try {
-      //this.showLoader();
-      this.aggridcss();
-      var data= this.props.getGridViewStructure();
-      const respDefColumns = await this.defColumns( data);
-
-      this.setState({ columnDefs: respDefColumns });
-      //const respGridData = await this.getGridData(0);
-      this.setState({ rowData: this.props.getGridViewData });
-      this.hideLoader();
-    } catch (error) {
-      console.log(error);
-    }
-   
-
-  }
 
   state = {
-
+    columnDefs: [],
+    rowData: [],
     myPrivateViewList: [],
     systemViewList: [],
     myPrivateViewType: true,
@@ -62,75 +40,74 @@ class AgGrid extends Component {
       { "sortState": "[{\"colId\":\"data_type\",\"sort\":\"asc\"}]" },
       { "filterState": "{}" },
       { "isPivotMode": true }],
-    columnDefs: [],
-    rowData: [],
-    gridOptions: 
-      {
-        defaultColDef: {
-          sortable: true,
-          resizable: true,
-          enableValue: true,
-          //autoHeight: true,
-          // lockPinned: true,
-          hide: true,
-          floatCell: true,
-          editable: false,
-          enablePivot: true,
-          //enableRowGroup: true
-        },
-        autoGroupColumnDef: {
-          enableValue: false,
-          headerCheckboxSelection: true,
-          headerCheckboxSelectionFilteredOnly: true,
-          cellRenderer: 'agGroupCellRenderer',
-          cellClass: 'grouprow',
-          cellStyle: { color: "#3c8dbc" },
-          rowStyle: { color: "#3c8dbc" },
-          cellRendererParams: {
-            suppressCount: true,
-            checkbox: false,
-            footerValueGetter: '"Total"',
-            // innerRenderer:this.customCellRendererFunc
 
-          },
-          filterValueGetter: function (params) {
-            var colGettingGrouped = params.colDef.showRowGroup;
-            var valueForOtherCol = params.api.getValue(colGettingGrouped.toString(), params.node);
-            return valueForOtherCol;
-          },
-        },
-        sideBar: true,
-        pivotMode: true,
-        suppressContextMenu: true,
-        enableBrowserTooltips: false,
-        groupIncludeTotalFooter: true,
-        groupSuppressBlankHeader: true,
-        rowDragManaged: true,
-        accentedSort: true,
-        suppressSetColumnStateEvents: true,
-        floatingFilter: false,
-        rowGroupPanelShow: 'always',
-        pivotPanelShow: 'always',
-        pivotColumnGroupTotals: 'before',
-        pivotRowTotals: 'before',
-        singleClickEdit: true,
-        enterMovesDownAfterEdit: true,
-        enterMovesDown: true,
-        groupDefaultExpanded: '999',
-        multiSortKey: 'ctrl',
-        animateRows: true,
-        enableRangeSelection: true,
-        rowSelection: "multiple",
-        rowDeselection: true,
-        quickFilterText: null,
-        groupSelectsChildren: false,
-        pagination: true,
-        suppressRowClickSelection: true,
-        groupMultiAutoColumn: true,
-        groupHideOpenParents: false,
-        suppressMakeColumnVisibleAfterUnGroup: true
+    gridOptions:
+    {
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        enableValue: true,
+        //autoHeight: true,
+        // lockPinned: true,
+        hide: true,
+        floatCell: true,
+        editable: false,
+        enablePivot: true,
+        //enableRowGroup: true
       },
-    
+      autoGroupColumnDef: {
+        enableValue: false,
+        headerCheckboxSelection: true,
+        headerCheckboxSelectionFilteredOnly: true,
+        cellRenderer: 'agGroupCellRenderer',
+        cellClass: 'grouprow',
+        cellStyle: { color: "#3c8dbc" },
+        rowStyle: { color: "#3c8dbc" },
+        cellRendererParams: {
+          suppressCount: true,
+          checkbox: false,
+          footerValueGetter: '"Total"',
+          // innerRenderer:this.customCellRendererFunc
+
+        },
+        filterValueGetter: function (params) {
+          var colGettingGrouped = params.colDef.showRowGroup;
+          var valueForOtherCol = params.api.getValue(colGettingGrouped.toString(), params.node);
+          return valueForOtherCol;
+        },
+      },
+      sideBar: true,
+      pivotMode: true,
+      suppressContextMenu: true,
+      enableBrowserTooltips: false,
+      groupIncludeTotalFooter: true,
+      groupSuppressBlankHeader: true,
+      rowDragManaged: true,
+      accentedSort: true,
+      suppressSetColumnStateEvents: true,
+      floatingFilter: false,
+      rowGroupPanelShow: 'always',
+      pivotPanelShow: 'always',
+      pivotColumnGroupTotals: 'before',
+      pivotRowTotals: 'before',
+      singleClickEdit: true,
+      enterMovesDownAfterEdit: true,
+      enterMovesDown: true,
+      groupDefaultExpanded: '999',
+      multiSortKey: 'ctrl',
+      animateRows: true,
+      enableRangeSelection: true,
+      rowSelection: "multiple",
+      rowDeselection: true,
+      quickFilterText: null,
+      groupSelectsChildren: false,
+      pagination: true,
+      suppressRowClickSelection: true,
+      groupMultiAutoColumn: true,
+      groupHideOpenParents: false,
+      suppressMakeColumnVisibleAfterUnGroup: true
+    },
+
     error: null,
     recordCount: 0,
     appurl: 'https://online.qa1.fs.local/dynamic/assets/',
@@ -139,17 +116,38 @@ class AgGrid extends Component {
     viewName: "",
     search: "",
     isPublic: true,
-
-
-    current: '',
-    btnClicked: false,
-    kind: '',
-    all_assortments: [],
-    title: '',
-    body: '',
-    sales_org: '',
-    selectedRowKeys: []
   }
+
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+    console.log(nextProps.gridviewstructure)
+    this.defColumns(nextProps.gridviewstructure).then(result => this.setState({
+      columnDefs: result,
+
+      rowData: nextProps.gridviewdata.length > 0 ? JSON.parse(nextProps.gridviewdata) : []
+      // rowData: nextProps.gridviewdata
+    }))
+    this.hideLoader();
+  }
+  async componentDidMount() {
+    try {
+      this.showLoader();
+      this.aggridcss();
+      await this.props.getGridViewStructure();
+      await this.props.getGridViewData(this.state.recordCount);
+      // var data = this.props.gridviewstructure;
+      // const respDefColumns = await this.defColumns( data);
+
+      //this.setState({ columnDefs: respDefColumns });
+      //const respGridData = await this.getGridData(0);
+      //this.setState({ rowData: this.props.getGridViewData });
+      // this.hideLoader();
+    } catch (error) {
+      console.log(error);
+    }
+
+
+  }
+
 
   generateDefColumns = (objData) => {
     const colData = objData;//await apiCall('gridViewStructure').then(res => { return res });// Get Column Structure data from API
@@ -432,15 +430,19 @@ class AgGrid extends Component {
       }
       coldef.push({ headerName: attributeCategoryName, id: attributeCategoryId, children: attributeCategory })
     }
+    //  this.setState({
+    //   columnDefs: coldef
+    // })
+    return coldef;
   }
   async defColumns(colData) { // Get and generate the Ag-grid column structure
     //debugger;
     //const colData = await apiCall('GetGridViewStructure').then(res => { return res });// Get Column Structure data from API
-    return  this.generateDefColumns(JSON.parse(colData));
+    return this.generateDefColumns(JSON.parse(colData));
   }
   async getGridData(gridData) { // Get Ag-grid data from API
     // debugger;
-  //  const gridData = await apiCall('GetGridViewData?data=' + param).then(res => { return res });// Get Ag-Grid data from API
+    //  const gridData = await apiCall('GetGridViewData?data=' + param).then(res => { return res });// Get Ag-Grid data from API
     return JSON.parse(gridData);
   }
   async applyFilter() {
@@ -636,13 +638,13 @@ class AgGrid extends Component {
             height: '100vh'
           }}
         >
-          <div className="gridcontainer row header" layout-xs="column" layout="row" style={{ height: "auto" }}>
-            <div id="headercontainer" className="headercontainer">
+          <div className="gridcontainer row header" layout-xs="column" layout="row" style={{ backgroundColor: '#e3f0f5', height: "auto" }}>
+            {/* <div id="headercontainer" className="headercontainer">
               <div className="logo">
-                {/* <img src="{{siteurl}}assets/fslogo.png"> */}
+                
               </div>
-            </div>
-            <div id="filtercontainer" className="filtercontainer ui-inputtext">
+            </div> */}
+            <div id="filtercontainer" style={{ marginTop: "67px" }} className="filtercontainer ui-inputtext">
               <div className="card">
                 <div className="card-header" id="headingOne">
                   <div className="grid-filter">

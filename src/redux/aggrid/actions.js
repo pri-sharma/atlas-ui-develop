@@ -50,8 +50,8 @@ export const GetGridViewStructureAction = () => {
                 if (res.error) {
                     throw (res.error);
                 }
-                dispatch(actions.getGridViewStructureSuccess(res.results));
-                return res.results;
+                dispatch(actions.getGridViewStructureSuccess(res));
+                return res;
             })
             .catch(error => {
                 dispatch(actions.getGridViewStructureError(error));
@@ -68,8 +68,8 @@ export const GetGridViewDataAction = (id) => {
                 if (res.error) {
                     throw (res.error);
                 }
-                dispatch(actions.getGridViewDataSuccess(res.results));
-                return res.results;
+                dispatch(actions.getGridViewDataSuccess(res));
+                return res;
             })
             .catch(error => {
                 dispatch(actions.getGridViewDataError(error));

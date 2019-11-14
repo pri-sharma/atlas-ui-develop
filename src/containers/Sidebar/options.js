@@ -23,7 +23,7 @@ const options = [
     {
         key: "aggrid", //MA Changes
         label: 'AgGrid',
-        icon: 'assignment_outlined',
+        icon: 'show_chart',
     }
 ];
 export default options;

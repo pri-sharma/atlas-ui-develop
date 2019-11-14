@@ -15,7 +15,7 @@ import {LicenseManager} from 'ag-grid-enterprise';
 import '@material-ui/icons';
 
 //LicenseManager.setLicenseKey(process.env.REACT_APP_AGGRID_KEY);
-LicenseManager.setLicenseKey("Foundation_Source_Philanthropic_Inc__Foundation_Source___3Devs2_SaaS_21_December_2019__MTU3Njg4NjQwMDAwMA==ee8b7707231e7b40f6e71ec9bf87a7f1"); //MA Changes
+LicenseManager.setLicenseKey('SHI_International_Corp_-_USA__on_behalf_of_COLGATE__MultiApp_6Devs7_June_2020__MTU5MTQ4NDQwMDAwMA==8b6496bd559839df6c9ff807a6392b25');
 let isRendered = false;
 const renderApp = () => {
     if (!isRendered) {
