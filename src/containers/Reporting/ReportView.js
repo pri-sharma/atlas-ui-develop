@@ -4,9 +4,20 @@ import { AgGridReact } from 'ag-grid-react';
 import { connect } from 'react-redux';
 import * as actions from '../../redux/reporting/actions';
 import '../ag_grid_style.css';
-// import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import loader from '../../images/loader.gif';
+import LayoutContentWrapper from '../../components/utility/layoutWrapper'
+import ContentHolder from "../../components/utility/contentHolder";
+import LayoutContent from '../../components/utility/layoutContent';
+import {Col, Row} from "antd";
+import appActions from '../../redux/app/actions';
 import $ from 'jquery';
+
+const tmpviewList = [
+  { 'id': 0, "viewName": "CBR Reort", "isPublic": true },
+  { 'id': 1, "viewName": "CBR Reort Full", "isPublic": false }
+]
 
 class ReportView extends Component {
   constructor(props) {
@@ -20,6 +31,7 @@ class ReportView extends Component {
   }
 
   state = {
+    click: false,
     columnDefs: [],
     rowData: [],
     myPrivateViewList: [],
@@ -28,12 +40,10 @@ class ReportView extends Component {
     systemViewType: true,
     viewList: [],
     filteredViewList: [],
-    tmpviewList: [
-      { 'id': 0, "viewName": "18K", "isPublic": true },
-      { 'id': 1, "viewName": "2000K", "isPublic": true },
-      { 'id': 2, "viewName": "1K", "isPublic": false },
-      { 'id': 3, "viewName": "2K", "isPublic": false }
-    ],
+    // tmpviewList: [
+    //   { 'id': 0, "viewName": "CBR Reort", "isPublic": true },
+    //   { 'id': 1, "viewName": "CBR Reort1", "isPublic": false }
+    // ],
     gridviewState:
       // "[{"colId":"data_type","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"country","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"category","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"subcategory","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"sku_grouping","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"sku","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"total_cases","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"gross_sales","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"gtn","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"netsales","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"margin","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"margin_percentage","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null}]
       // [{ "colState": "[{\"colId\":\"ag-Grid-AutoColumn-sku\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"data_type\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"country\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"category\",\"hide\":true,\"aggFunc\":\"count\",\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"subcategory\",\"hide\":true,\"aggFunc\":\"count\",\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"sku_grouping\",\"hide\":true,\"aggFunc\":\"count\",\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"sku\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":0},{\"colId\":\"total_cases\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"gross_sales\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,pIndex\":null},{\"colId\":\"gtn\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"netsales\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"margin\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"margin_percentage\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null}]" },
@@ -113,28 +123,45 @@ class ReportView extends Component {
     error: null,
     recordCount: 0,
     //displayChoosedView: "My List Views",
-    displayChoosedView: "18K",
+    displayChoosedView: "",
     viewName: "",
     search: "",
     isPublic: true,
   }
 
   UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
-    console.log(nextProps.gridviewstructure)
+   // console.log(nextProps.gridviewstructure)
     this.defColumns(nextProps.gridviewstructure).then(result => this.setState({
       columnDefs: result,
 
       rowData: nextProps.gridviewdata.length > 0 ? JSON.parse(nextProps.gridviewdata) : []
       // rowData: nextProps.gridviewdata
     }))
-    this.hideLoader();
+ 
   }
+  componentWillReceiveProps = (nextProps) => {
+    if (this.props.params != nextProps.params) {
+    //  loadSearch(nextProps.params);
+    }
+  }
+//   componentWillMount() {
+// alert('hi')
+//   }
   async componentDidMount() {
     try {
-      this.showLoader();
-      this.aggridcss();
-      await this.props.getGridViewStructure();
-      await this.props.getGridViewData(this.state.recordCount);
+      this.setState({click: false});
+     // const query = new URLSearchParams(this.props.location.search);
+      //  const id = query.get('id')
+     // const id = 0;
+      // this.setState({ recordCount: id, displayChoosedView: tmpviewList.filter(x => x.id == id)[0].viewName });
+      // this.showLoader();
+      // this.aggridcss();
+      // if(this.state.click == true)
+      // {
+      //   await this.props.getGridViewStructure();
+      //   await this.props.getGridViewData(this.state.recordCount);
+      // }
+   
       // var data = this.props.gridviewstructure;
       // const respDefColumns = await this.defColumns( data);
 
@@ -145,10 +172,7 @@ class ReportView extends Component {
     } catch (error) {
       console.log(error);
     }
-
-
   }
-
 
   generateDefColumns = (objData) => {
     const colData = objData;//await apiCall('gridViewStructure').then(res => { return res });// Get Column Structure data from API
@@ -157,16 +181,16 @@ class ReportView extends Component {
     var categoryChild = [];// Category Child
     let coldef = []; // Column Definition
     let attributeCategory = []; // Final Column with header
-    var gridId, headername, headerDataType, attributeCategoryName,
+    var gridId, headername, headerDataType, attributeCategoryName, fileldName,
       attributeCategoryId, Isfilter, lowercaseFieldName;
     //const uniqueAtt = colData.filter((x, i, a) => a.indexOf(x) == i)
     const map = new Map();
     for (const item of colData) {
-      if (!map.has(item.AttributeCategoryID)) {
-        map.set(item.AttributeCategoryID, true);    // set any value to Map
+      if (!map.has(item.attribute_category_id)) {
+        map.set(item.attribute_category_id, true);    // set any value to Map
         uniqueAttCat.push({
-          AttributeCategoryID: item.AttributeCategoryID,
-          AttributeCategory: item.AttributeCategory
+          AttributeCategoryID: item.attribute_category_id,
+          AttributeCategory: item.attribute_category
         });
       }
     }
@@ -174,29 +198,30 @@ class ReportView extends Component {
     for (var j = 0; j < uniqueAttCat.length; j++) {
       childOfHeader = [];
       attributeCategory = [];
-      var filterColDatavalues = colData.filter(item => item.AttributeCategoryID == uniqueAttCat[j].AttributeCategoryID)
+      var filterColDatavalues = colData.filter(item => item.attribute_category_id == uniqueAttCat[j].AttributeCategoryID)
       childOfHeader = filterColDatavalues
       for (var l = 0; l < childOfHeader.length; l++) {
         categoryChild = childOfHeader[l];
-        attributeCategoryName = categoryChild["AttributeCategory"];
-        attributeCategoryId = categoryChild["AttributeCategoryID"];
-        headername = categoryChild["AttributeName"];
-        headerDataType = categoryChild["DataType"];
-        gridId = categoryChild["ID"];
-        Isfilter = categoryChild["IsFilter"] == 'true' ? true : false;
+        attributeCategoryName = categoryChild["attribute_category"];
+        attributeCategoryId = categoryChild["attribute_category_id"];
+        headername = categoryChild["attribute_display_name"];
+        fileldName = categoryChild["attribute_name"];
+        headerDataType = categoryChild["data_type"];
+        gridId = categoryChild["id"];
+        Isfilter = categoryChild["is_filter"] == 'true' ? true : false;
         if (headerDataType == "Date") {
           agfilter = "agDateColumnFilter";
         } else if (headerDataType == "Amount" || headerDataType == "Numeric") {
           agfilter = "agNumberColumnFilter";
         }
 
-        lowercaseFieldName = headername.toLowerCase();
+        //lowercaseFieldName = headername;
         if (headerDataType == "Date") {
 
           attributeCategory.push({
             headerDataType: headerDataType,
             headerName: headername,
-            field: lowercaseFieldName,
+            field: fileldName,
             suppressFilter: Isfilter,
             enableRowGroup: true,
             //cellClass: 'ag-grid-cellClass',
@@ -259,7 +284,7 @@ class ReportView extends Component {
           attributeCategory.push({
             headerDataType: headerDataType,
             headerName: headername,
-            field: lowercaseFieldName,
+            field: fileldName,
             suppressFilter: Isfilter,
             filter: agfilter,
             enableRowGroup: false,
@@ -320,7 +345,7 @@ class ReportView extends Component {
           attributeCategory.push({
             headerDataType: headerDataType,
             headerName: headername,
-            field: lowercaseFieldName,
+            field: fileldName,
             suppressFilter: Isfilter,
             filter: agfilter,
             enableRowGroup: false,
@@ -379,7 +404,7 @@ class ReportView extends Component {
           attributeCategory.push({
             headerDataType: headerDataType,
             headerName: headername,
-            field: lowercaseFieldName,
+            field: fileldName,
             suppressFilter: Isfilter,
             filter: agfilter,
             enableRowGroup: true,
@@ -414,7 +439,7 @@ class ReportView extends Component {
           attributeCategory.push({
             headerDataType: headerDataType,
             headerName: headername,
-            field: lowercaseFieldName,
+            field: fileldName,
             suppressFilter: Isfilter,
             filter: agfilter,
             enableRowGroup: true,
@@ -439,7 +464,7 @@ class ReportView extends Component {
   async defColumns(colData) { // Get and generate the Ag-grid column structure
     //debugger;
     //const colData = await apiCall('GetGridViewStructure').then(res => { return res });// Get Column Structure data from API
-    return this.generateDefColumns(JSON.parse(colData));
+    return this.generateDefColumns(colData);
   }
   async getGridData(gridData) { // Get Ag-grid data from API
     // debugger;
@@ -541,11 +566,11 @@ class ReportView extends Component {
   createViewList() {
     this.state.myPrivateViewList = [];
     this.state.systemViewList = [];
-    for (var i = 0; i < this.state.tmpviewList.length; i++) {
-      if (this.state.tmpviewList[i].isPublic == true) {
-        this.state.systemViewList.push({ id: this.state.tmpviewList[i].id, viewName: this.state.tmpviewList[i].viewName, isPublic: this.state.tmpviewList[i].isPublic })
+    for (var i = 0; i < tmpviewList.length; i++) {
+      if (tmpviewList[i].isPublic == true) {
+        this.state.systemViewList.push({ id: tmpviewList[i].id, viewName: tmpviewList[i].viewName, isPublic: tmpviewList[i].isPublic })
       } else {
-        this.state.myPrivateViewList.push({ id: this.state.tmpviewList[i].id, viewName: this.state.tmpviewList[i].viewName, isPublic: this.state.tmpviewList[i].isPublic })
+        this.state.myPrivateViewList.push({ id: tmpviewList[i].id, viewName: tmpviewList[i].viewName, isPublic: tmpviewList[i].isPublic })
       }
     }
 
@@ -582,11 +607,11 @@ class ReportView extends Component {
       return;
     }
     //this.filteredViewList = this.viewList.filter(element => element.tmpviewList.filter(element => element.viewName.indexOf(this.search)>=0))
-    this.state.viewList.forEach(element => element.viewList.forEach(element1 => element1.viewName.toLowerCase().indexOf(this.state.search.toLowerCase()) >= 0))
+    this.state.viewList.forEach(element => element.viewList.forEach(element1 => element1.viewName.indexOf(this.state.search) >= 0))
     this.state.filteredViewList = this.state.viewList.map((i) => {
       return {
         viewType: i.viewType,
-        viewList: i.viewList.filter((x) => x.viewName.toLowerCase().indexOf(this.state.search.toLowerCase()) >= 0)
+        viewList: i.viewList.filter((x) => x.viewName.indexOf(this.state.search) >= 0)
       }
     })
     this.setState({ filteredViewList: this.state.filteredViewList })
@@ -618,163 +643,204 @@ class ReportView extends Component {
       return (<tr key={index}><td><table><tbody><tr><td className="dv-padding view-type-group-label">{view.viewType}</td></tr><tr><td style={{ paddingLeft: "25px" }}><table><tbody>{this.renderList(view.viewList)}</tbody></table></td></tr></tbody></table></td></tr>)
     })
   }
+  renderReportList() {
+    return tmpviewList.map((rp, index) => {
+      //return (<table><tbody><tr key={index}><td> <a onClick= {() => this.reportClick(rp.id)}>{rp.viewName}</a> </td></tr></tbody></table>)
+      return (<table><tbody><tr key={index}><td> <a onClick= {() => this.reportClick(rp.id)}>{rp.viewName}</a> </td></tr></tbody></table>)
+
+    })
+
+  }
+  reportClick=(id)=>{
+      this.setState({click: true});
+      
+      this.setState({ recordCount: id, displayChoosedView: tmpviewList.filter(x => x.id == id)[0].viewName });
+      this.showLoader();
+      this.aggridcss();
+      this.props.getGridViewStructure();
+      this.props.getGridViewData(this.state.recordCount);
+      this.hideLoader();
+
+  }
   render() {
     this.createViewList();
     this.filterViewList();
     return (
       <div>
-        <div id="updateProgress" style={{ display: "none" }} role="status" aria-hidden="true">
-          <div className="updateProgress">
-            <img id="imgUpdateProgress" title="Loading ..." src ={loader} alt="Loading ..."
-              style={{ padding: "10px", position: "fixed", top: "30%", left: "45%" }}></img>
-          </div>
-        </div>
-        <div id="disableBackground" style={{ display: "none" }} role="status" aria-hidden="true">
-          <div className="disableBackground">
-          </div>
-        </div>
-        <div
-          className="box ag-theme-balham"
-          style={{
-            height: '100vh'
-          }}
-        >
-          <div className="gridcontainer row header" layout-xs="column" layout="row" style={{ backgroundColor: '#e3f0f5', height: "auto" }}>
-            <div id="filtercontainer" style={{ marginTop: "67px" }} className="filtercontainer ui-inputtext">
-              <div className="card">
-                <div className="card-header" id="headingOne">
-                  <div className="grid-filter">
-                    <ul id="ember264" style={{ marginBottom: "0px" }} className="list-inline remove-style ember-view"
+            <div id="updateProgress" style={{ display: "none" }} role="status" aria-hidden="true">
+              <div className="updateProgress">
+                <img id="imgUpdateProgress" title="Loading ..." src={loader} alt="Loading ..."
+                  style={{ padding: "10px", position: "fixed", top: "30%", left: "45%" }}></img>
+              </div>
+            </div>
+        {this.state.click == false ?
+
+          <LayoutContentWrapper>
+            <LayoutContent>
+              <h1>Report List</h1>
+              <Row>
+                <Col>
+                  <ContentHolder>
+                    {this.renderReportList()}
+                  </ContentHolder>
+                </Col> </Row>
+            </LayoutContent>
+          </LayoutContentWrapper> :
+
+          <div>
+        
+            <div id="disableBackground" style={{ display: "none" }} role="status" aria-hidden="true">
+              <div className="disableBackground">
+              </div>
+            </div>
+            <div
+              className="box ag-theme-balham"
+              style={{
+                height: '100vh'
+              }}
+            >
+              <div className="gridcontainer row header" layout-xs="column" layout="row" style={{ backgroundColor: '#e3f0f5', height: "auto" }}>
+                <div id="filtercontainer" style={{ marginTop: "67px" }} className="filtercontainer ui-inputtext">
+                  <div className="card">
+                    <div className="card-header" id="headingOne">
+                      <div className="grid-filter">
+                        {/* <ul id="ember264" style={{ marginBottom: "0px" }} className="list-inline remove-style ember-view"
                       style={{ marginBottom: "0px" }}>
                       <div>
-                        <li className="payment-date">
-                          <div style={{ display: "flex" }}>
-                            <div style={{ float: "right" }}>
-                              <div id="ChoosedView" style={{ paddingLeft: "3px" }}>
-                                <div id="dvChoosedView" type="text"
-                                  className="dvChoosedView ember-power-select-trigger saved-list-view-trigger"
-                                  data-toggle="dropdown">
-                                  <span id="spChoosedView"
-                                    className="ember-power-select-selected-item">{this.state.displayChoosedView}</span>
-                                  <span style={{ lineHeight: "24px", marginLeft: "1.3em" }}
-                                    className="fa fa-caret-down fa-lg pull-right"></span>
-                                </div>
-
-                                <div style={{ left: "0" }} id="savedview"
-                                  className="savedview dropdown-menu saved-list-view-dropdown ember-power-select-dropdown">
-                                  <div style={{ float: "left" }}>
-                                    <div className="dv-padding">
-                                      <input
-                                        type="text" placeholder="Save current view as..." maxLength="60"
-                                        id="ember8811"
-                                        className="txtview form-control ember-power-select-search-input ember-text-field ember-view" />
-                                      <input checked={this.state.isPublic} onChange={this.onViewChange} type="checkbox" tooltip="Check to make View Public"
-                                      />
-                                      <button style={{ height: "34px", marginLeft: "10px" }} className="btn btn-primary" >
-                                        <i className="fa fa-save"></i> Add</button>
-                                    </div>
-                                    <table>
-                                      <tbody>
-                                        <tr className="saved-list-view-row">
-                                          <td className="dv-padding saved-list-view-option" colSpan="2">
-                                            <a style={{ cursor: "pointer" }}
-                                              onClick={this.getDefaultState}>Clear Columns and
-                                                  Filters </a>
-                                          </td>
-                                        </tr>
-                                        <tr className="view-type">
-                                          <td colSpan="2" style={{ paddingRight: "15px" }}>
-                                            <span
-                                              tooltip="Views you have created. Only you may select and edit the View."
-                                            >Private</span>
-                                            <input checked={this.state.myPrivateViewType} onChange={this.onPrivateViewChange} type="checkbox"
-                                            />
-                                            <span
-                                              tooltip="Views you have created and made Public. Only you may select and edit the View."
-                                            >System</span>
-                                            <input checked={this.state.systemViewType} onChange={this.onSystemViewChange} type="checkbox"
-                                            />
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td className="dv-padding" style={{ paddingTop: "5px", paddingBottom: "7px" }}>
-                                            <input style={{ float: "left" }}
-                                              onChange={this.applySearch}
-                                              value={this.state.search}
-                                              type="text" placeholder="Search..."
-                                              maxLength="60" id="ember8811"
-                                              className="txtview form-control ember-power-select-search-input ember-text-field ember-view" />
-                                            <span style={{ float: "left" }}
-                                              tooltip="Search for a View by its full or partial name."
-
-                                              className="help-tipHeader my-viewtip"></span>
-                                          </td>
-                                        </tr>
-
-                                        {this.renderType()}
-                                      </tbody></table>
-                                  </div>
-
-                                </div></div>
-                            </div>
-
-                            <div style={{ marginLeft: "10px" }}>
-                              <button
-                                onClick={this.applyFilter}
-                                tooltip="Click apply to update the available data based on Type, Date, and Period selections."
-                                id="btnapply"
-                                type="button"
-                                className="btn btn-primary px-4 button-round-corners button-width"
-                              >Apply  </button>
-
-                              <div style={{ display: "none" }}>
-
-                                <div id="valueToggle">
-                                  <span id="spnvalueToggle" className="ag-icon ag-icon-tree-open toggle" onClick={this.valueToggle} ></span>
-                                  <span className="ag-icon ag-icon-aggregation ag-column-drop-icon spnag-column-drop-icon"></span>
-                                  <span className="ag-column-drop-title" >Values</span>
-                                </div>
-
-                                <div id="rowGroupToggle">
-                                  <span id="spnrowGroupToggle" className="ag-icon ag-icon-tree-open toggle" onClick={this.rowGroupToggle} ></span>
-                                  <span className="ag-icon ag-icon-group ag-column-drop-icon spnag-column-drop-icon"></span>
-                                  <span className="ag-column-drop-title" >Row Groups</span>
-                                </div>
-
-                                <div id="colGroupToggle">
-                                  <span id="spncolGroupToggle" className="ag-icon ag-icon-tree-open toggle" onClick={this.colGroupToggle} ></span>
-                                  <span className="ag-icon ag-icon-pivot ag-column-drop-icon spnag-column-drop-icon"></span>
-                                  <span className="ag-column-drop-title" >Column Labels</span>
-                                </div>
-
+                        <li className="payment-date"> */}
+                        <div style={{ display: "flex" }}>
+                          <div style={{ float: "right" }}>
+                            <div id="ChoosedView" style={{ paddingLeft: "3px" }}>
+                              <div id="dvChoosedView" type="text"
+                                className="dvChoosedView ember-power-select-trigger saved-list-view-trigger"
+                                data-toggle="dropdown">
+                                <span id="spChoosedView"
+                                  className="ember-power-select-selected-item">{this.state.displayChoosedView}</span>
+                                <span style={{ lineHeight: "24px", marginLeft: "1.3em" }}
+                                  className="fa fa-caret-down fa-lg pull-right"></span>
                               </div>
-                            </div>
 
+                              <div style={{ left: "0" }} id="savedview"
+                                className="savedview dropdown-menu saved-list-view-dropdown ember-power-select-dropdown">
+                                <div style={{ float: "left" }}>
+                                  <div className="dv-padding">
+                                    <input
+                                      type="text" placeholder="Save current view as..." maxLength="60"
+                                      id="ember8811"
+                                      className="txtview form-control ember-power-select-search-input ember-text-field ember-view" />
+                                    <input checked={this.state.isPublic} onChange={this.onViewChange} type="checkbox" tooltip="Check to make View Public"
+                                    />
+                                    <button style={{ height: "34px", marginLeft: "10px" }} className="btn btn-primary" >
+                                      <i className="fa fa-save"></i> Add</button>
+                                  </div>
+                                  <table>
+                                    <tbody>
+                                      <tr className="saved-list-view-row">
+                                        <td className="dv-padding saved-list-view-option" colSpan="2">
+                                          <a style={{ cursor: "pointer" }}
+                                            onClick={this.getDefaultState}>Clear Columns and
+                                                  Filters </a>
+                                        </td>
+                                      </tr>
+                                      <tr className="view-type">
+                                        <td colSpan="2" style={{ paddingRight: "15px" }}>
+                                          <span
+                                            tooltip="Views you have created. Only you may select and edit the View."
+                                          >Private</span>
+                                          <input checked={this.state.myPrivateViewType} onChange={this.onPrivateViewChange} type="checkbox"
+                                          />
+                                          <span
+                                            tooltip="Views you have created and made Public. Only you may select and edit the View."
+                                          >System</span>
+                                          <input checked={this.state.systemViewType} onChange={this.onSystemViewChange} type="checkbox"
+                                          />
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td className="dv-padding" style={{ paddingTop: "5px", paddingBottom: "7px" }}>
+                                          <input style={{ float: "left" }}
+                                            onChange={this.applySearch}
+                                            value={this.state.search}
+                                            type="text" placeholder="Search..."
+                                            maxLength="60" id="ember8811"
+                                            className="txtview form-control ember-power-select-search-input ember-text-field ember-view" />
+                                          <span style={{ float: "left" }}
+                                            tooltip="Search for a View by its full or partial name."
+
+                                            className="help-tipHeader my-viewtip"></span>
+                                        </td>
+                                      </tr>
+
+                                      {this.renderType()}
+                                    </tbody></table>
+                                </div>
+
+                              </div></div>
                           </div>
 
+                          <div style={{ marginLeft: "10px" }}>
+                            <button
+                              onClick={this.applyFilter}
+                              tooltip="Click apply to update the available data based on Type, Date, and Period selections."
+                              id="btnapply"
+                              type="button"
+                              className="btn btn-primary px-4 button-round-corners button-width"
+                            >Apply  </button>
+
+                            <div style={{ display: "none" }}>
+
+                              <div id="valueToggle">
+                                <span id="spnvalueToggle" className="ag-icon ag-icon-tree-open toggle" onClick={this.valueToggle} ></span>
+                                <span className="ag-icon ag-icon-aggregation ag-column-drop-icon spnag-column-drop-icon"></span>
+                                <span className="ag-column-drop-title" >Values</span>
+                              </div>
+
+                              <div id="rowGroupToggle">
+                                <span id="spnrowGroupToggle" className="ag-icon ag-icon-tree-open toggle" onClick={this.rowGroupToggle} ></span>
+                                <span className="ag-icon ag-icon-group ag-column-drop-icon spnag-column-drop-icon"></span>
+                                <span className="ag-column-drop-title" >Row Groups</span>
+                              </div>
+
+                              <div id="colGroupToggle">
+                                <span id="spncolGroupToggle" className="ag-icon ag-icon-tree-open toggle" onClick={this.colGroupToggle} ></span>
+                                <span className="ag-icon ag-icon-pivot ag-column-drop-icon spnag-column-drop-icon"></span>
+                                <span className="ag-column-drop-title" >Column Labels</span>
+                              </div>
+
+                            </div>
+                          </div>
+
+                        </div>
+                        {/* 
                         </li>
                       </div>
-                    </ul></div></div>
-              </div>
+                    </ul> */}
+                      </div></div>
+                  </div>
 
+                </div >
+              </div >
+              <AgGridReact
+                columnDefs={this.state.columnDefs}
+                rowData={this.state.rowData}
+                gridOptions={this.state.gridOptions}
+              >
+              </AgGridReact>
             </div >
           </div >
-          <AgGridReact
-            columnDefs={this.state.columnDefs}
-            rowData={this.state.rowData}
-            gridOptions={this.state.gridOptions}
-          >
-          </AgGridReact>
-        </div >
-      </div >
-
+        }
+      </div>
     )
 
   }
 }
 
 const mapStateToProps = state => {
+  //state["App"].LINK_CLICK =true
+
+ // this.setState({click: state["App"].linkClick});
   return {
+   
     gridviewstructure: state.GridView.gridviewstructure,
     gridviewdata: state.GridView.gridviewdata
   }

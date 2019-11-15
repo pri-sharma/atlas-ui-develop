@@ -2,7 +2,7 @@ import { getDefaultPath } from '../../helpers/urlSync';
 import actions, { getView } from './actions';
 
 const preKeys = getDefaultPath();
-
+const tmplinkClick = false;
 const initState = {
   collapsed: window.innerWidth > 1220 ? false : true,
   view: getView(window.innerWidth),
@@ -11,6 +11,7 @@ const initState = {
   openKeys: preKeys,
   current: preKeys,
   currentTab: 'baseline_volume_planning',
+  linkClick: false,
 };
 export default function appReducer(state = initState, action) {
   switch (action.type) {
@@ -20,6 +21,8 @@ export default function appReducer(state = initState, action) {
       return { ...state, current: action.current };
     case actions.SET_TAB:
       return {...state, currentTab: action.payload};
+    case actions.LINK_CLICK:
+      return {...state, linkClick: action.click};
     default:
       return state;
   }

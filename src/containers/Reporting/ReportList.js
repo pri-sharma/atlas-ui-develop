@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import LayoutContentWrapper from '../../components/utility/layoutWrapper'
 import ContentHolder from "../../components/utility/contentHolder";
 import LayoutContent from '../../components/utility/layoutContent';
+
 import {Col, Row} from "antd";
 
 
 const dummyData = [
   { 'id': '0', 'reportName': 'CBR Reort' },
-  { 'id': '1', 'reportName': 'CBR Reort1' },
+  { 'id': '1', 'reportName': 'CBR Reort Pull' },
 ];
 class ReportList extends Component {
   constructor(props) {
@@ -21,8 +22,8 @@ class ReportList extends Component {
 
   async componentDidMount() {
 
-
   }
+
   renderReportList() {
     // return this.state.filteredViewList.map((view, index) => {
     //   return (<table><tbody><tr key={index}><td>{view.viewType}</td></tr></tbody></table>)

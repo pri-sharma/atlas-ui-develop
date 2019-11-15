@@ -1,4 +1,5 @@
 /* @import "../node_modules/bootstrap/scss/bootstrap"; */
+
 .App {
     text-align: center;
   }
@@ -130,8 +131,11 @@
    .btn-primary {
     /* background-color: #3c8dbc !important; */
     background-color: #1DA1DA !important;
-    border-color: #367fa9 !important;
+    /* border-color: #367fa9 !important; */
     color:#FCFCFC !important;
+    border: 1px solid #367fa9 !important;
+    border-radius: .25rem !important;
+
   }
   .imgUpdateProgress {
     padding: "10px";
@@ -533,7 +537,7 @@
     position: absolute;
     left: auto !important;
     /* right:13px !important; */
-    top:15% !important;
+    top:14.4% !important;
     width: auto;
 
     z-index: 1;

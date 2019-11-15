@@ -20,10 +20,5 @@ const options = [
         label: 'Admin',
         icon: 'assignment_outlined',
     }
-    // ,{
-    //     key: "aggrid", //MA Changes
-    //     label: 'AgGrid',
-    //     icon: 'show_chart',
-    // }
 ];
 export default options;

@@ -9,9 +9,11 @@ export function getView(width) {
 }
 
 const actions = {
+    
     CHANGE_OPEN_KEYS: 'CHANGE_OPEN_KEYS',
     CHANGE_CURRENT: 'CHANGE_CURRENT',
-    SET_TAB: 'SET_TAB',
+    SET_TAB: 'SET_TAB',  
+    LINK_CLICK: 'LINK_CLICK',
 
     setTab: (id) => {
         return {
@@ -26,6 +28,10 @@ const actions = {
     changeCurrent: current => ({
         type: actions.CHANGE_CURRENT,
         current
+    }),
+    linkClick: click => ({
+        type: actions.LINK_CLICK,
+        click
     }),
 };
 export default actions;

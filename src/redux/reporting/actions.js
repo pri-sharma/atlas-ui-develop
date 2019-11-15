@@ -1,6 +1,7 @@
 // const base_url = 'http://127.0.0.1:8080'; THIS WILL NOT WORK WHEN PUSHED TO THE CLOUD. YOU MUST USE REACT_APP_API_URL
 //const base_url = process.env.REACT_APP_API_URL;
-const base_url = 'http://aggrid-demo.mediaagility.com/BigQuery/api/View'
+//const base_url = 'http://aggrid-demo.mediaagility.com/BigQuery/api/View'
+const base_url = 'http://127.0.0.1:8002'
 const authHeaders = () => ({
     headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('idToken')
@@ -44,7 +45,9 @@ const actions = {
 export const GetGridViewStructureAction = () => {
     return dispatch => {
         // dispatch(actions.getAssortmentsPending());
-        fetch(`${base_url}/GetGridViewStructure/`)
+       // fetch(`${base_url}/GetGridViewStructure/`)
+       fetch(`${base_url}/api/v1/get_grid_structure/fetch_structure/?view_id=1`,authHeaders())
+       
             .then(res => res.json())
             .then(res => {
                 if (res.error) {
@@ -62,7 +65,7 @@ export const GetGridViewStructureAction = () => {
 export const GetGridViewDataAction = (id) => {
     return dispatch => {
         // dispatch(actions.getAssortmentsPending());
-        fetch(`${base_url}/GetGridViewData?data=`+id)
+        fetch(`${base_url}/GetGridViewData?data=`+id, authHeaders())
             .then(res => res.json())
             .then(res => {
                 if (res.error) {

@@ -120,7 +120,7 @@ export const restrictedRoutes = [
     },
     {
         path: '/reporting', //MA Changes
-        component: asyncComponent(() => import('../Reporting/ReportList'))
+        component: asyncComponent(() => import('../Reporting/ReportView'))
     },
     {
         path: '/reportview', //MA Changes
