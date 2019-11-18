@@ -3,7 +3,7 @@ import LayoutContentWrapper from '../../components/utility/layoutWrapper'
 import ContentHolder from "../../components/utility/contentHolder";
 import LayoutContent from '../../components/utility/layoutContent';
 
-import {Col, Row} from "antd";
+import { Col, Row } from "antd";
 
 
 const dummyData = [
@@ -29,9 +29,9 @@ class ReportList extends Component {
     //   return (<table><tbody><tr key={index}><td>{view.viewType}</td></tr></tbody></table>)
     // })
     return dummyData.map((rp, index) => {
-      return (<table><tbody><tr key={index}><td> <a href={"/reportview?id="+rp.id}>{rp.reportName}</a> </td></tr></tbody></table>)
+      return (<table><tbody><tr key={index}><td> <a href={"/reportview?id=" + rp.id}>{rp.reportName}</a> </td></tr></tbody></table>)
     })
-    
+
   }
   render() {
     return (
@@ -41,7 +41,7 @@ class ReportList extends Component {
           <Row>
             <Col>
               <ContentHolder>
-              {this.renderReportList()}
+                {this.renderReportList()}
               </ContentHolder>
             </Col> </Row>
         </LayoutContent>
@@ -51,4 +51,16 @@ class ReportList extends Component {
 
   }
 }
-export default (ReportList)
+const mapStateToProps = state => {
+  return {
+    gridviewstate: state.GridView.gridviewstate,
+  }
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators({
+    getGridViewState: actions.GetGridViewStateAction
+  }, dispatch);
+};
+//export default (ReportList)
+export default connect(mapStateToProps, mapDispatchToProps)(ReportList)

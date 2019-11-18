@@ -11,10 +11,13 @@ const authHeaders = () => ({
 const actions = {
     GET_GRIDVIEW_STRUCTURE: 'GET_GRIDVIEW_STRUCTURE',
     GET_GRIDVIEW_DATA: 'GET_GRIDVIEW_DATA',
+    GET_GRIDVIEW_STATE: 'GET_GRIDVIEW_STATE',
     GET_GRIDVIEW_STRUCTURE_SUCCESS: 'GET_GRIDVIEW_STRUCTURE_SUCCESS',
     GET_GRIDVIEW_STRUCTURE_ERROR: 'GET_GRIDVIEW_STRUCTURE_ERROR',
     GET_GRIDVIEW_DATA_SUCCESS: 'GET_GRIDVIEW_DATA_SUCCESS',
     GET_GRIDVIEW_DATA_ERROR: 'GET_GRIDVIEW_DATA_ERROR',
+    GET_GRIDVIEW_STATE_SUCCESS: 'GET_GRIDVIEW_DATA_SUCCESS',
+    GET_GRIDVIEW_STATE_ERROR: 'GET_GRIDVIEW_DATA_ERROR',
 
     getGridViewStructureSuccess: (structure) => {
         return {
@@ -39,16 +42,37 @@ const actions = {
             type: actions.GET_GRIDVIEW_DATA_ERROR,
             error: error
         }
+    },
+    getGridViewStateSuccess: (data) => {
+        return {
+            type: actions.GET_GRIDVIEW_STATE_SUCCESS,
+            payload: data
+        }
+    },
+    getGridViewStateError: (error) => {
+        return {
+            type: actions.GET_GRIDVIEW_STATE_ERROR,
+            error: error
+        }
     }
 
 };
-export const GetGridViewStructureAction = () => {
+export const GetGridViewStructureAction = (id) => {
     return dispatch => {
-        // dispatch(actions.getAssortmentsPending());
-       // fetch(`${base_url}/GetGridViewStructure/`)
-       fetch(`${base_url}/api/v1/get_grid_structure/fetch_structure/?view_id=1`,authHeaders())
-       
-            .then(res => res.json())
+        return fetch(`${base_url}/api/v1/get_grid_structure/fetch_structure/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('idToken')
+            },
+            body: JSON.stringify({
+                view_id: id,
+                email_id: "abc@colpal.com"
+            })
+        })
+            .then(r => {
+                return r.json()
+            })
             .then(res => {
                 if (res.error) {
                     throw (res.error);
@@ -60,12 +84,43 @@ export const GetGridViewStructureAction = () => {
                 dispatch(actions.getGridViewStructureError(error));
             })
     }
+
+};
+
+export const GetGridViewStateAction = (id) => {
+    return dispatch => {
+        return fetch(`${base_url}/api/v1/get_grid_state/fetch_state/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('idToken')
+            },
+            body: JSON.stringify({
+                user_id: id,
+                email_id: "abc@colpal.com"
+            })
+        })
+            .then(r => {
+                return r.json()
+            })
+            .then(res => {
+                if (res.error) {
+                    throw (res.error);
+                }
+                dispatch(actions.getGridViewStateSuccess(res));
+                return res;
+            })
+            .catch(error => {
+                dispatch(actions.getGridViewStateError(error));
+            })
+    }
+
 };
 
 export const GetGridViewDataAction = (id) => {
     return dispatch => {
         // dispatch(actions.getAssortmentsPending());
-        fetch(`${base_url}/GetGridViewData?data=`+id, authHeaders())
+        fetch(`${base_url}/GetGridViewData?data=` + id, authHeaders())
             .then(res => res.json())
             .then(res => {
                 if (res.error) {

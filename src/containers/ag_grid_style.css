@@ -1023,6 +1023,12 @@
   .updateProgress{
     position: fixed;text-align: center;height: 100%;width: 100%;top: 0;right: 0;left: 0;z-index: 9999999;background-color: #000000;opacity: 0.7;
   }
+  .back-button{
+    margin-left: 10px;
+  }
+  /* .MuiSvgIcon-root{
+    font-size: 2.5rem !important; 
+  } */
   /* .ag-column-drop-list span{
     background-color: #1DA1DA !important;
     color:#FCFCFC !important;

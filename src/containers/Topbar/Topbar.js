@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
-import {Redirect} from 'react-router'
-import {connect} from 'react-redux';
-import {Layout} from 'antd';
+import React, { Component } from 'react';
+import { Redirect } from 'react-router'
+import { connect } from 'react-redux';
+import { Layout } from 'antd';
 import appActions from '../../redux/app/actions';
 import * as bvpActions from '../../redux/bvp/actions';
 import TopbarUser from './topbarUser';
@@ -19,7 +19,7 @@ import HeaderWrapper from './topbar.style';
 import 'react-dates/lib/css/_datepicker.css';
 import './react_dates_overrides.css';
 
-const {Header} = Layout;
+const { Header } = Layout;
 
 class Topbar extends Component {
     constructor(props) {
@@ -53,10 +53,10 @@ class Topbar extends Component {
         });
     };
 
-    onDatesChange = ({startDate, endDate}) => {
+    onDatesChange = ({ startDate, endDate }) => {
         this.startDate = startDate;
         this.endDate = endDate;
-        this.setState({startDate, endDate});
+        this.setState({ startDate, endDate });
     };
 
     onDatesClose = () => {
@@ -69,11 +69,11 @@ class Topbar extends Component {
     };
 
     onFocusChange = (focusedInput) => {
-        this.setState({focusedInput});
+        this.setState({ focusedInput });
 
         const startDayInt = this.getStartDay();
         if (this.state.startDayOfWeek !== startDayInt) {
-            this.setState({startDayOfWeek: startDayInt});
+            this.setState({ startDayOfWeek: startDayInt });
         }
     };
 
@@ -87,32 +87,35 @@ class Topbar extends Component {
     render() {
         const url = this.props.url.replace(/\//g, '');
         if (this.state.redirect && url !== this.props.currentTab) {
-            return <Redirect to={`/${this.props.currentTab}`}/>
+            return <Redirect to={`/${this.props.currentTab}`} />
         }
 
         return ( // TODO: have global enums for links
             <HeaderWrapper>
                 <Header
                     className='customHeaderBar'>
-                    <Box>
-                        <PlannableCustomerSelect/>
-                    </Box>
+                         <Box>
+                    {(url != 'reporting') ?
+                       
+                            < PlannableCustomerSelect />
+                       : null}
+                        </Box> 
                     <Box>
                         {(url === 'baseline_volume_planning' || url.startsWith('bspevent') || url.startsWith('promoevent'))
-                        && !!(this.props.selectedCustomer) ?
+                            && !!(this.props.selectedCustomer) ?
                             <Tabs value={this.props.currentTab || 'baseline_volume_planning'}
-                                  onChange={this.handleTabChange}
-                                  indicatorColor='primary'
-                                  variant='fullWidth'>
+                                onChange={this.handleTabChange}
+                                indicatorColor='primary'
+                                variant='fullWidth'>
                                 {this.props.planningConfig.BVP ?
                                     <Tab className='customHeaderText customTabs' label='Baseline Volume'
-                                         value={'baseline_volume_planning'}/> : null}
+                                        value={'baseline_volume_planning'} /> : null}
                                 {this.props.planningConfig.BSP ?
                                     <Tab className='customHeaderText customTabs' label='Base Spends'
-                                         value={'bspevent'}/> : null}
+                                        value={'bspevent'} /> : null}
                                 {this.props.planningConfig.TP ?
                                     <Tab className='customHeaderText customTabs' label='Trade Promotion'
-                                         value={'promoevent'}/> : null}
+                                        value={'promoevent'} /> : null}
                             </Tabs>
                             : null}
 
@@ -127,7 +130,7 @@ class Topbar extends Component {
                         <IconButton className='customHeaderText' aria-label='notification'>
                             <NotificationsNoneIcon />
                         </IconButton>
-                        <TopbarUser/>
+                        <TopbarUser />
                     </Box>
                 </Header>
             </HeaderWrapper>

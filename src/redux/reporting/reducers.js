@@ -3,6 +3,7 @@ import actions from './actions';
 const initState = {
     gridviewstructure: [],
     gridviewdata: [],
+    gridviewstate: [],
     pending: false,
     error: null,
 };
@@ -21,6 +22,23 @@ const reducer = (state = initState, action) => {
                 gridviewstructure: action.payload
             };
         case actions.GET_GRIDVIEW_STRUCTURE_ERROR:
+            return {
+                ...state,
+                pending: false,
+                error: action.error
+            };
+        case actions.GET_GRIDVIEW_STATE:
+            return {
+                ...state,
+                pending: false
+            };
+        case actions.GET_GRIDVIEW_STATE_SUCCESS:
+            return {
+                ...state,
+                pending: false,
+                gridviewstate: action.payload
+            };
+        case actions.GET_GRIDVIEW_STATE_ERROR:
             return {
                 ...state,
                 pending: false,

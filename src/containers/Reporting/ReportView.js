@@ -10,19 +10,15 @@ import loader from '../../images/loader.gif';
 import LayoutContentWrapper from '../../components/utility/layoutWrapper'
 import ContentHolder from "../../components/utility/contentHolder";
 import LayoutContent from '../../components/utility/layoutContent';
-import {Col, Row} from "antd";
+import { Col, Row } from "antd";
 import appActions from '../../redux/app/actions';
 import $ from 'jquery';
-
-const tmpviewList = [
-  { 'id': 0, "viewName": "CBR Reort", "isPublic": true },
-  { 'id': 1, "viewName": "CBR Reort Full", "isPublic": false }
-]
 
 class ReportView extends Component {
   constructor(props) {
     super(props);
     this.applyFilter = this.applyFilter.bind(this);
+    this.backClick = this.backClick.bind(this); 
     this.rowGroupToggle = this.rowGroupToggle.bind(this);
     this.valueToggle = this.valueToggle.bind(this);
     this.colGroupToggle = this.colGroupToggle.bind(this);
@@ -31,6 +27,7 @@ class ReportView extends Component {
   }
 
   state = {
+    reportList: [],
     click: false,
     columnDefs: [],
     rowData: [],
@@ -40,7 +37,7 @@ class ReportView extends Component {
     systemViewType: true,
     viewList: [],
     filteredViewList: [],
-    // tmpviewList: [
+    // reportList: [
     //   { 'id': 0, "viewName": "CBR Reort", "isPublic": true },
     //   { 'id': 1, "viewName": "CBR Reort1", "isPublic": false }
     // ],
@@ -130,45 +127,24 @@ class ReportView extends Component {
   }
 
   UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
-   // console.log(nextProps.gridviewstructure)
+    // console.log(nextProps.gridviewstructure)
+    this.setState({
+      reportList: nextProps.gridviewstate,
+    })
     this.defColumns(nextProps.gridviewstructure).then(result => this.setState({
       columnDefs: result,
-
-      rowData: nextProps.gridviewdata.length > 0 ? JSON.parse(nextProps.gridviewdata) : []
-      // rowData: nextProps.gridviewdata
+      reportList: nextProps.gridviewstate
     }))
- 
+    this.setState({rowData: nextProps.gridviewdata.length > 0 ? JSON.parse(nextProps.gridviewdata) : []})
+
   }
-  componentWillReceiveProps = (nextProps) => {
-    if (this.props.params != nextProps.params) {
-    //  loadSearch(nextProps.params);
-    }
-  }
-//   componentWillMount() {
-// alert('hi')
-//   }
   async componentDidMount() {
     try {
-      this.setState({click: false});
-     // const query = new URLSearchParams(this.props.location.search);
-      //  const id = query.get('id')
-     // const id = 0;
-      // this.setState({ recordCount: id, displayChoosedView: tmpviewList.filter(x => x.id == id)[0].viewName });
-      // this.showLoader();
-      // this.aggridcss();
-      // if(this.state.click == true)
-      // {
-      //   await this.props.getGridViewStructure();
-      //   await this.props.getGridViewData(this.state.recordCount);
-      // }
-   
-      // var data = this.props.gridviewstructure;
-      // const respDefColumns = await this.defColumns( data);
-
-      //this.setState({ columnDefs: respDefColumns });
-      //const respGridData = await this.getGridData(0);
-      //this.setState({ rowData: this.props.getGridViewData });
-      // this.hideLoader();
+      this.setState({ click: false });
+      await this.props.getGridViewState(0);
+      this.setState({
+        reportList:  this.props.gridviewstate,
+      })
     } catch (error) {
       console.log(error);
     }
@@ -488,6 +464,9 @@ class ReportView extends Component {
     this.state.gridOptions.api.setRowData(respGridData)
     this.hideLoader();
   }
+  async backClick(){
+    this.setState({ click: false });
+  }
   showLoader() {
     let eGridDiv = document.querySelector('#updateProgress');
     eGridDiv.style.display = "";
@@ -563,14 +542,15 @@ class ReportView extends Component {
 
     }
   }
+
   createViewList() {
     this.state.myPrivateViewList = [];
     this.state.systemViewList = [];
-    for (var i = 0; i < tmpviewList.length; i++) {
-      if (tmpviewList[i].isPublic == true) {
-        this.state.systemViewList.push({ id: tmpviewList[i].id, viewName: tmpviewList[i].viewName, isPublic: tmpviewList[i].isPublic })
+    for (var i = 0; i < this.state.reportList.length; i++) {
+      if (this.state.reportList[i].isPublic == true) {
+        this.state.systemViewList.push({ id: this.state.reportList[i].view_id, viewName: this.state.reportList[i].view_name, isPublic: this.state.reportList[i].is_public })
       } else {
-        this.state.myPrivateViewList.push({ id: tmpviewList[i].id, viewName: tmpviewList[i].viewName, isPublic: tmpviewList[i].isPublic })
+        this.state.myPrivateViewList.push({ id: this.state.reportList[i].view_id, viewName: this.state.reportList[i].view_name, isPublic: this.state.reportList[i].is_public })
       }
     }
 
@@ -606,7 +586,7 @@ class ReportView extends Component {
       this.setState({ filteredViewList: this.state.viewList })
       return;
     }
-    //this.filteredViewList = this.viewList.filter(element => element.tmpviewList.filter(element => element.viewName.indexOf(this.search)>=0))
+    //this.filteredViewList = this.viewList.filter(element => element.reportList.filter(element => element.viewName.indexOf(this.search)>=0))
     this.state.viewList.forEach(element => element.viewList.forEach(element1 => element1.viewName.indexOf(this.state.search) >= 0))
     this.state.filteredViewList = this.state.viewList.map((i) => {
       return {
@@ -617,17 +597,21 @@ class ReportView extends Component {
     this.setState({ filteredViewList: this.state.filteredViewList })
 
   }
+
   onPublicSelectionChange = (e) => {
     e.isPublic = !e.isPublic
     //alert(e.isPublic)
   }
+
   onViewChange = (e) => {
     this.setState({ isPublic: !this.state.isPublic });
   }
+
   onPrivateViewChange = (e) => {
     this.setState({ myPrivateViewType: !this.state.myPrivateViewType });
     this.filterViewList();
   }
+
   onSystemViewChange = (e) => {
     this.setState({ systemViewType: !this.state.systemViewType });
     this.filterViewList();
@@ -635,7 +619,7 @@ class ReportView extends Component {
 
   renderList(child) {
     return child.map((view, index) => {
-      return (<tr key={index} className="saved-list-view-row"><td className="saved-list-view-option"><a onClick={() => this.restoreState(view)} style={{ cursor: "pointer" }}>{view.viewName}</a></td><td> <input checked={view.isPublic} onChange={() => this.onPublicSelectionChange(view)} type="checkbox" /></td><td className="saved-list-view-actions"><span id="save" className="fa fa-save tag-icon-xs m-r-sm disabled" style={{ marginRight: "7px" }}></span><a tooltip="Update View" id="update" className="fa fa-save tag-icon-xs" style={{ display: "none", cursor: "pointer", marginRight: "7px" }}></a><a tooltip="Delete View" className="fa fa-trash tag-icon-xs" style={{ cursor: "pointer" }} ></a></td></tr>)
+      return (<tr key={index} className="saved-list-view-row"><td className="saved-list-view-option"><a onClick={() => this.restoreState(view)} style={{ cursor: "pointer" }}>{view.viewName}</a></td><td> </td><td className="saved-list-view-actions"><span id="save" className="fa fa-save tag-icon-xs m-r-sm disabled" style={{ marginRight: "7px" }}></span><a tooltip="Update View" id="update" className="fa fa-save tag-icon-xs" style={{ display: "none", cursor: "pointer", marginRight: "7px" }}></a><a tooltip="Delete View" className="fa fa-trash tag-icon-xs" style={{ cursor: "pointer" }} ></a></td></tr>)
     })
   }
   renderType() {
@@ -644,35 +628,38 @@ class ReportView extends Component {
     })
   }
   renderReportList() {
-    return tmpviewList.map((rp, index) => {
-      //return (<table><tbody><tr key={index}><td> <a onClick= {() => this.reportClick(rp.id)}>{rp.viewName}</a> </td></tr></tbody></table>)
-      return (<table><tbody><tr key={index}><td> <a onClick= {() => this.reportClick(rp.id)}>{rp.viewName}</a> </td></tr></tbody></table>)
+    return this.state.reportList.map((rp, index) => {
+      return (<table><tbody><tr key={index}><td> <a onClick={() => this.reportClick(rp.view_id)}>{rp.view_name}</a> </td></tr></tbody></table>)
 
     })
 
   }
-  reportClick=(id)=>{
-      this.setState({click: true});
-      
-      this.setState({ recordCount: id, displayChoosedView: tmpviewList.filter(x => x.id == id)[0].viewName });
-      this.showLoader();
-      this.aggridcss();
-      this.props.getGridViewStructure();
-      this.props.getGridViewData(this.state.recordCount);
-      this.hideLoader();
+  reportClick = (id) => {
+    this.setState({ click: true });
+
+    this.setState({ recordCount: id, displayChoosedView: this.state.reportList.filter(x => x.view_id == id)[0].view_name });
+    this.showLoader();
+    //this.aggridcss();
+    this.props.getGridViewStructure(id);
+    this.props.getGridViewState(id);
+    this.props.getGridViewData(this.state.recordCount);
+    this.hideLoader();
 
   }
+
+
   render() {
     this.createViewList();
     this.filterViewList();
+    this.aggridcss();
     return (
       <div>
-            <div id="updateProgress" style={{ display: "none" }} role="status" aria-hidden="true">
-              <div className="updateProgress">
-                <img id="imgUpdateProgress" title="Loading ..." src={loader} alt="Loading ..."
-                  style={{ padding: "10px", position: "fixed", top: "30%", left: "45%" }}></img>
-              </div>
-            </div>
+        <div id="updateProgress" style={{ display: "none" }} role="status" aria-hidden="true">
+          <div className="updateProgress">
+            <img id="imgUpdateProgress" title="Loading ..." src={loader} alt="Loading ..."
+              style={{ padding: "10px", position: "fixed", top: "30%", left: "45%" }}></img>
+          </div>
+        </div>
         {this.state.click == false ?
 
           <LayoutContentWrapper>
@@ -688,7 +675,7 @@ class ReportView extends Component {
           </LayoutContentWrapper> :
 
           <div>
-        
+
             <div id="disableBackground" style={{ display: "none" }} role="status" aria-hidden="true">
               <div className="disableBackground">
               </div>
@@ -728,8 +715,7 @@ class ReportView extends Component {
                                       type="text" placeholder="Save current view as..." maxLength="60"
                                       id="ember8811"
                                       className="txtview form-control ember-power-select-search-input ember-text-field ember-view" />
-                                    <input checked={this.state.isPublic} onChange={this.onViewChange} type="checkbox" tooltip="Check to make View Public"
-                                    />
+                                   
                                     <button style={{ height: "34px", marginLeft: "10px" }} className="btn btn-primary" >
                                       <i className="fa fa-save"></i> Add</button>
                                   </div>
@@ -781,12 +767,18 @@ class ReportView extends Component {
                           <div style={{ marginLeft: "10px" }}>
                             <button
                               onClick={this.applyFilter}
-                              tooltip="Click apply to update the available data based on Type, Date, and Period selections."
+                              //tooltip="Click apply to update the available data based on Type, Date, and Period selections."
                               id="btnapply"
                               type="button"
                               className="btn btn-primary px-4 button-round-corners button-width"
                             >Apply  </button>
-
+                            <button
+                              onClick={this.backClick}
+                             // tooltip="Click back to update the available data based on Type, Date, and Period selections."
+                              id="btnback"
+                              type="button"
+                              className="btn btn-primary px-4 button-round-corners button-width back-button"
+                            >Back  </button>
                             <div style={{ display: "none" }}>
 
                               <div id="valueToggle">
@@ -838,10 +830,10 @@ class ReportView extends Component {
 const mapStateToProps = state => {
   //state["App"].LINK_CLICK =true
 
- // this.setState({click: state["App"].linkClick});
+  // this.setState({click: state["App"].linkClick});
   return {
-   
     gridviewstructure: state.GridView.gridviewstructure,
+    gridviewstate: state.GridView.gridviewstate,
     gridviewdata: state.GridView.gridviewdata
   }
 };
@@ -849,8 +841,9 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return bindActionCreators({
     getGridViewStructure: actions.GetGridViewStructureAction,
+    getGridViewState: actions.GetGridViewStateAction,
     getGridViewData: actions.GetGridViewDataAction
   }, dispatch);
 };
-
+export const backClick = () => { this.setState({ click: false }); }
 export default connect(mapStateToProps, mapDispatchToProps)(ReportView)

@@ -10,6 +10,7 @@ import Scrollbars from '../../components/utility/customScrollBar';
 import LabeledLogoIcon from '../../components/labeledIcon/LabeledLogoIcon';
 import LabeledIcon from '../../components/labeledIcon/LabeledIcon';
 
+
 const { Sider } = Layout;
 const {
     changeOpenKeys,
@@ -28,15 +29,37 @@ class Sidebar extends Component {
 
     handleClick(e) {
         //alert(e.key)
-        //    if (e.key != 'reporting') {
-        //     this.removejscssfile("bootstrap.min.js", "js") //remove all occurences of "somescript.js" on page
-        //     this.removejscssfile("bootstrap.min.css", "css") //remove all occurences "somestyle.css" on page
-        // }
+        if (e.key != 'reporting') {
+              this.removejscssfile("bootstrap.min.js", "js") //remove all occurences of "somescript.js" on page
+              this.removejscssfile("bootstrap.min.css", "css") //remove all occurences "somestyle.css" on page
+        } else {
+
+            this.loadjscssfile("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js", "js") //dynamically load and add this .js file
+            this.loadjscssfile("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css", "css") //dynamically load "javascript.php" as a JavaScript file
+        }
+
+        // backClick
         if (e.key === 'admin') {
             window.location.href = process.env.REACT_APP_API_URL + '/admin';  // Lol we'll do it live
         }
         this.props.changeCurrent([e.key]);
         this.props.linkClick(false)
+    }
+
+    loadjscssfile(filename, filetype) {
+        if (filetype == "js") { //if filename is a external JavaScript file
+            var fileref = document.createElement('script')
+            fileref.setAttribute("type", "text/javascript")
+            fileref.setAttribute("src", filename)
+        }
+        else if (filetype == "css") { //if filename is an external CSS file
+            var fileref = document.createElement("link")
+            fileref.setAttribute("rel", "stylesheet")
+            fileref.setAttribute("type", "text/css")
+            fileref.setAttribute("href", filename)
+        }
+        if (typeof fileref != "undefined")
+            document.getElementsByTagName("head")[0].appendChild(fileref)
     }
 
     removejscssfile = (filename, filetype) => {
@@ -54,7 +77,7 @@ class Sidebar extends Component {
     }
 
     onOpenChange(newOpenKeys) {
-        const { app, changeOpenKeys,linkClick } = this.props;
+        const { app, changeOpenKeys, linkClick } = this.props;
         const latestOpenKey = newOpenKeys.find(
             key => !(app.openKeys.indexOf(key) > -1)
         );
@@ -80,6 +103,14 @@ class Sidebar extends Component {
     getMenuItem = ({ singleOption }) => {
         const { currentTab } = this.props.app;
         const { key, label, icon } = singleOption;
+        if (this.props.app.current[0] != 'reporting') {
+            this.removejscssfile("bootstrap.min.js", "js") //remove all occurences of "somescript.js" on page
+            this.removejscssfile("bootstrap.min.css", "css") //remove all occurences "somestyle.css" on page
+      } else {
+
+          this.loadjscssfile("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js", "js") //dynamically load and add this .js file
+          this.loadjscssfile("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css", "css") //dynamically load "javascript.php" as a JavaScript file
+      }
         return (
             <Menu.Item key={key} className='customClass'>
                 <Link
@@ -121,5 +152,5 @@ export default connect(
         app: state.App,
         height: state.App.height
     }),
-    { changeOpenKeys, changeCurrent,linkClick }
+    { changeOpenKeys, changeCurrent, linkClick }
 )(Sidebar);
