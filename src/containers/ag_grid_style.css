@@ -321,7 +321,8 @@
   .saved-list-view-dropdown .saved-list-view-option a {
     display: inline-block !important;
     width: 100% !important;
-    color: #666 !important;
+    color: #666;
+    cursor: pointer !important;
   }
   .saved-list-view-dropdown .saved-list-view-actions {
     width: 35px;
@@ -1025,6 +1026,9 @@
   }
   .back-button{
     margin-left: 10px;
+  }
+  .selectedView{
+    color: #006ebb !important;
   }
   /* .MuiSvgIcon-root{
     font-size: 2.5rem !important; 

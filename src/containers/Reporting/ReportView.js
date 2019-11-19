@@ -27,7 +27,7 @@ class ReportView extends Component {
   }
 
   state = {
-    reportList: [],
+    reportStateList: [],
     click: false,
     columnDefs: [],
     rowData: [],
@@ -37,19 +37,6 @@ class ReportView extends Component {
     systemViewType: true,
     viewList: [],
     filteredViewList: [],
-    // reportList: [
-    //   { 'id': 0, "viewName": "CBR Reort", "isPublic": true },
-    //   { 'id': 1, "viewName": "CBR Reort1", "isPublic": false }
-    // ],
-    gridviewState:
-      // "[{"colId":"data_type","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"country","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"category","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"subcategory","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"sku_grouping","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"sku","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"total_cases","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"gross_sales","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"gtn","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"netsales","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"margin","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"margin_percentage","hide":true,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":null,"rowGroupIndex":null}]
-      // [{ "colState": "[{\"colId\":\"ag-Grid-AutoColumn-sku\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"data_type\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"country\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"category\",\"hide\":true,\"aggFunc\":\"count\",\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"subcategory\",\"hide\":true,\"aggFunc\":\"count\",\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"sku_grouping\",\"hide\":true,\"aggFunc\":\"count\",\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"sku\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":0},{\"colId\":\"total_cases\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"gross_sales\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,pIndex\":null},{\"colId\":\"gtn\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"netsales\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"margin\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"margin_percentage\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null}]" },
-      [{ "colState": "[{\"colId\":\"ag-Grid-AutoColumn-sku\",\"hide\":false,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"data_type\",\"hide\":false,\"aggFunc\":\"count\",\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"country\",\"hide\":false,\"aggFunc\":\"count\",\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null}]" },
-      { "groupState": "[{\"groupId\":\"0\",\"open\":false}]" },
-      { "sortState": "[{\"colId\":\"data_type\",\"sort\":\"asc\"}]" },
-      { "filterState": "{}" },
-      { "isPivotMode": true }],
-
     gridOptions:
     {
       defaultColDef: {
@@ -114,37 +101,170 @@ class ReportView extends Component {
       suppressRowClickSelection: true,
       groupMultiAutoColumn: true,
       groupHideOpenParents: false,
-      suppressMakeColumnVisibleAfterUnGroup: true
+      suppressMakeColumnVisibleAfterUnGroup: true,
+      onDisplayedColumnsChanged: this.isChangedGridState
     },
-
     error: null,
-    recordCount: 0,
-    //displayChoosedView: "My List Views",
-    displayChoosedView: "",
+    currentViewId: 0,
+    currentViewName: "",
+    currentState: [],
     viewName: "",
     search: "",
     isPublic: true,
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps(nextProps, nextContext) {
     // console.log(nextProps.gridviewstructure)
     this.setState({
-      reportList: nextProps.gridviewstate,
+      reportStateList: nextProps.gridviewstate,
+      currentState: nextProps.gridviewstate.filter(x => x.id == this.state.currentViewId)[0]
     })
     this.defColumns(nextProps.gridviewstructure).then(result => this.setState({
       columnDefs: result,
-      reportList: nextProps.gridviewstate
+      //reportStateList: nextProps.gridviewstate
     }))
-    this.setState({rowData: nextProps.gridviewdata.length > 0 ? JSON.parse(nextProps.gridviewdata) : []})
+    this.setState({rowData: nextProps.gridviewdata.length > 0 ? nextProps.gridviewdata : []})
 
   }
+
+  setPreviousFilteredColGroupState(data) {
+    var previousGridViewColState = [], previousGroupColState = [];
+    var previousColHidefilter, previousGroupfilter;
+    previousGridViewColState = JSON.parse(data.col_state)
+    previousGroupColState = JSON.parse(data.group_state)
+
+    previousColHidefilter = previousGridViewColState.filter(x => x.hide == false)
+    previousGroupfilter = previousGroupColState.filter(x => x.open == false && (x.groupId.indexOf('pivot') > 0))
+
+    var previousFilteredColstate = JSON.stringify(previousColHidefilter)
+    var previousFilteredGroupState = JSON.stringify(previousGroupfilter)
+    var previousFilteredColGroupState = [];
+    previousFilteredColGroupState.push({ 'previousFilteredColstate': previousFilteredColstate, 'previousFilteredGroupState': previousFilteredGroupState })
+    localStorage.setItem('previousFilteredColGroupState', JSON.stringify(previousFilteredColGroupState));
+  }
+
+  isChangedGridState(event, isPublic) {
+    //alert('hi')
+    event.api.expireValueCache();
+      var colState = event.columnApi.getColumnState();
+      var aggrgatedColumn = colState.filter(x => x.aggFunc != null)
+      var gridcolumns = event.columnApi.columnController.gridColumns;
+    //   var disabledRowGroup = gridcolumns.filter(o1 => aggrgatedColumn.some(o2 => o2.colId == o1.colId));
+    //   var enabledRowGroup = gridcolumns.filter(function (obj) {
+    //   return !aggrgatedColumn.some(function (obj2) {
+    //     return obj.colId == obj2.colId
+    //   });
+    // });
+    // if (aggrgatedColumn.length > 0) {
+    //   disabledRowGroup.forEach(function (col) {
+    //     col.colDef.enableRowGroup = false;
+    //     col.colDef.enableValue = true;
+    //     col.colDef.lockPinned = true;
+    //     aggrgatedColumn.forEach(function (aggcol) {
+    //       event.columnApi.setColumnVisible(aggcol.colId, true)
+    //     })
+    //   })
+    //   enabledRowGroup.forEach(function (col) {
+    //     col.colDef.enableRowGroup = true;
+    //   })
+    // }
+    // else {
+    //   disabledRowGroup = gridcolumns.filter(o1 => o1.colDef.enableRowGroup == false);
+    //   disabledRowGroup.forEach(function (col) {
+    //     col.colDef.enableRowGroup = true;
+    //   })
+
+    // }
+
+    // let headerText = document.querySelectorAll('.ag-cell-label-container>.ag-header-cell-label>.ag-header-cell-text');
+    // headerText.forEach(element => {
+    //   element.innerHTML = element.innerHTML.replace('(', ' ').replace(')', '');
+    // });
+
+     try {
+    //   liveSession();
+    //   recountRow();
+      var previousFilteredColGroupState = JSON.parse(localStorage.getItem('previousFilteredColGroupState'));
+      var previousFilteredColstate = previousFilteredColGroupState[0].previousFilteredColstate
+
+      var jsonpreviousFilteredColstate = JSON.parse(previousFilteredColstate)
+      Object.keys(jsonpreviousFilteredColstate).forEach(function (key) {
+        delete jsonpreviousFilteredColstate[key]["width"]
+      });
+
+    //   // console.log(jsonpreviousFilteredColstate);
+     var previousFilteredGroupState = previousFilteredColGroupState[0].previousFilteredGroupState
+     this.gridStateMsg = [];
+     var colSate = JSON.stringify(event.columnApi.getColumnState())
+     var filterSate = JSON.stringify(event.api.getFilterModel())
+      if (event.api && event.api.rowModel.rowsToDisplay.length == 0 && filterSate == "{}") {
+       // this.api.showNoRowsOverlay();
+      }
+      else {
+        if (colSate.indexOf('false') > 0 || colSate.indexOf('"pivotIndex":0') > 0) {
+         // event.api.hideOverlay();
+        } else {
+          //event.api.showLoadingOverlay();
+        }
+      }
+
+     var previousGridViewState = JSON.parse(localStorage.getItem('previousGridViewState'));
+     var currentFilterState = JSON.parse(localStorage.getItem('currentFilterState'));
+     var currentColstate = [], currentGroupColState, currentColHidefilter, currentGroupfilter;
+      currentColstate = event.columanApi.getColumnState()
+    //   currentGroupColState = event.columnApi.getColumnGroupState()
+    //   currentColHidefilter = currentColstate.filter(x => x.hide == false)
+
+    //   var jsoncurrentColHidefilter = currentColHidefilter;
+    //   Object.keys(jsoncurrentColHidefilter).forEach(function (key) {
+    //     delete jsoncurrentColHidefilter[key]["width"]
+    //   });
+    //   currentGroupfilter = currentGroupColState.filter(x => x.open == false && (x.groupId.indexOf('pivot') > 0))
+
+    //   if (event.columnApi.isPivotMode() == previousGridViewState[0].isPivotMode &&
+    //     //JSON.stringify(currentColHidefilter) == previousFilteredColstate &&
+    //     JSON.stringify(jsoncurrentColHidefilter) == JSON.stringify(jsonpreviousFilteredColstate) &&
+    //     JSON.stringify(currentGroupfilter) == previousFilteredGroupState &&
+    //     JSON.stringify(event.api.getSortModel()) == previousGridViewState[0].sortState &&
+    //     filterSate == previousGridViewState[0].filterState &&
+    //     currentFilterState[0].attributeCategoryID.toString() == previousGridViewState[0].attributeCategoryID &&
+    //     currentFilterState[0].dateType == previousGridViewState[0].dateType &&
+    //     currentFilterState[0].startDate == previousGridViewState[0].startDate &&
+    //     currentFilterState[0].endDate == previousGridViewState[0].endDate &&
+    //     currentFilterState[0].reportingPeriod == previousGridViewState[0].reportingPeriod &&
+    //     isPublic == undefined ? previousGridViewState[0].isPublic == previousGridViewState[0].isPublic : isPublic == previousGridViewState[0].isPublic
+    //   ) {
+    //     this.IsUpdateview = 0;
+    //   } else {
+    //     this.IsUpdateview = 1;
+
+    //   }
+
+    //   if (previousGridViewState[0].viewName != 'My List Views') {
+    //     if (previousGridViewState[0].viewName.length > 35) {
+    //       this.displayChoosedView = this.IsUpdateview == 1 ? previousGridViewState[0].viewName.substring(0, 35) + "...*" : previousGridViewState[0].viewName.substring(0, 35)
+    //       showUpdateView(this.IsUpdateview, previousGridViewState[0].viewName.substring(0, 35) + "...")
+    //     } else {
+    //       this.displayChoosedView = this.IsUpdateview == 1 ? previousGridViewState[0].viewName + "*" : previousGridViewState[0].viewName
+
+    //       showUpdateView(this.IsUpdateview, previousGridViewState[0].viewName)
+    //     }
+    //   }
+    //   else {
+    //     showUpdateView(this.IsUpdateview, previousGridViewState[0].viewName)
+    //   }
+
+     }
+     catch (error) {
+       console.log(error);
+   }
+
+  }
+
   async componentDidMount() {
     try {
       this.setState({ click: false });
       await this.props.getGridViewState(0);
-      this.setState({
-        reportList:  this.props.gridviewstate,
-      })
     } catch (error) {
       console.log(error);
     }
@@ -447,23 +567,7 @@ class ReportView extends Component {
     //  const gridData = await apiCall('GetGridViewData?data=' + param).then(res => { return res });// Get Ag-Grid data from API
     return JSON.parse(gridData);
   }
-  async applyFilter() {
-    if (this.state.recordCount == 1) {
-      var data = this.state.gridviewState
 
-      this.state.gridOptions.columnApi.setColumnState((JSON.parse(data[0].colState)));
-      this.state.gridOptions.columnApi.setColumnGroupState(JSON.parse(data[1].groupState));
-      this.state.gridOptions.api.setSortModel(JSON.parse(data[2].sortState));
-      this.state.gridOptions.api.setFilterModel(JSON.parse(data[3].filterState));
-      this.state.gridOptions.columnApi.setPivotMode(data[4].isPivotMode)
-    }
-
-    this.showLoader();
-    console.log(this.state.recordCount)
-    const respGridData = await this.getGridData(this.state.recordCount);
-    this.state.gridOptions.api.setRowData(respGridData)
-    this.hideLoader();
-  }
   async backClick(){
     this.setState({ click: false });
   }
@@ -546,11 +650,11 @@ class ReportView extends Component {
   createViewList() {
     this.state.myPrivateViewList = [];
     this.state.systemViewList = [];
-    for (var i = 0; i < this.state.reportList.length; i++) {
-      if (this.state.reportList[i].isPublic == true) {
-        this.state.systemViewList.push({ id: this.state.reportList[i].view_id, viewName: this.state.reportList[i].view_name, isPublic: this.state.reportList[i].is_public })
+    for (var i = 0; i < this.state.reportStateList.length; i++) {
+      if (this.state.reportStateList[i].is_public == true) {
+        this.state.systemViewList.push({ id: this.state.reportStateList[i].view_id, viewName: this.state.reportStateList[i].view_name, isPublic: this.state.reportStateList[i].is_public })
       } else {
-        this.state.myPrivateViewList.push({ id: this.state.reportList[i].view_id, viewName: this.state.reportList[i].view_name, isPublic: this.state.reportList[i].is_public })
+        this.state.myPrivateViewList.push({ id: this.state.reportStateList[i].view_id, viewName: this.state.reportStateList[i].view_name, isPublic: this.state.reportStateList[i].is_public })
       }
     }
 
@@ -573,11 +677,12 @@ class ReportView extends Component {
   }
 
   restoreState = (e) => {
-    this.setState({ recordCount: e.id, displayChoosedView: e.viewName });
+    this.setState({ currentViewId: e.id, currentViewName: e.viewName });
+
   }
 
   getDefaultState = (e) => {
-    this.setState({ recordCount: 0, displayChoosedView: "My List Views" });
+    this.setState({ currentViewId: 0, currentViewName: "My List Views" });
   }
 
   applySearch = (e) => {
@@ -586,7 +691,7 @@ class ReportView extends Component {
       this.setState({ filteredViewList: this.state.viewList })
       return;
     }
-    //this.filteredViewList = this.viewList.filter(element => element.reportList.filter(element => element.viewName.indexOf(this.search)>=0))
+    //this.filteredViewList = this.viewList.filter(element => element.reportStateList.filter(element => element.viewName.indexOf(this.search)>=0))
     this.state.viewList.forEach(element => element.viewList.forEach(element1 => element1.viewName.indexOf(this.state.search) >= 0))
     this.state.filteredViewList = this.state.viewList.map((i) => {
       return {
@@ -617,36 +722,57 @@ class ReportView extends Component {
     this.filterViewList();
   }
 
-  renderList(child) {
+  renderList= (child,currentviewid)=> {
     return child.map((view, index) => {
-      return (<tr key={index} className="saved-list-view-row"><td className="saved-list-view-option"><a onClick={() => this.restoreState(view)} style={{ cursor: "pointer" }}>{view.viewName}</a></td><td> </td><td className="saved-list-view-actions"><span id="save" className="fa fa-save tag-icon-xs m-r-sm disabled" style={{ marginRight: "7px" }}></span><a tooltip="Update View" id="update" className="fa fa-save tag-icon-xs" style={{ display: "none", cursor: "pointer", marginRight: "7px" }}></a><a tooltip="Delete View" className="fa fa-trash tag-icon-xs" style={{ cursor: "pointer" }} ></a></td></tr>)
+      return (<tr key={index} className="saved-list-view-row"><td className="saved-list-view-option"><a onClick={() => this.restoreState(view)} className = {view.id==currentviewid?'selectedView':null} >{view.viewName}</a></td><td> </td><td className="saved-list-view-actions"><span id="save" className="fa fa-save tag-icon-xs m-r-sm disabled" style={{ marginRight: "7px" }}></span><a tooltip="Update View" id="update" className="fa fa-save tag-icon-xs" style={{ display: "none", cursor: "pointer", marginRight: "7px" }}></a><a tooltip="Delete View" className="fa fa-trash tag-icon-xs" style={{ cursor: "pointer" }} ></a></td></tr>)
     })
   }
   renderType() {
-    return this.state.filteredViewList.map((view, index) => {
-      return (<tr key={index}><td><table><tbody><tr><td className="dv-padding view-type-group-label">{view.viewType}</td></tr><tr><td style={{ paddingLeft: "25px" }}><table><tbody>{this.renderList(view.viewList)}</tbody></table></td></tr></tbody></table></td></tr>)
+    return this.state.filteredViewList.map((type, index) => {
+      return (<tr key={index}><td><table><tbody><tr><td className="dv-padding view-type-group-label">{type.viewType}</td></tr><tr><td style={{ paddingLeft: "25px" }}><table><tbody>{this.renderList(type.viewList,this.state.currentViewId)}</tbody></table></td></tr></tbody></table></td></tr>)
     })
   }
   renderReportList() {
-    return this.state.reportList.map((rp, index) => {
-      return (<table><tbody><tr key={index}><td> <a onClick={() => this.reportClick(rp.view_id)}>{rp.view_name}</a> </td></tr></tbody></table>)
-
+    return this.state.reportStateList.map((rpt, index) => {
+      return (<table><tbody><tr key={index}><td> <a onClick={() => this.reportClick(rpt.view_id)}>{rpt.view_name}</a> </td></tr></tbody></table>)
     })
 
   }
-  reportClick = (id) => {
-    this.setState({ click: true });
 
-    this.setState({ recordCount: id, displayChoosedView: this.state.reportList.filter(x => x.view_id == id)[0].view_name });
+  async applyFilter() {
+    await this.props.getGridViewStructure(this.state.currentViewId);
+    this.setState({ currentState: this.props.gridviewstate.filter(x => x.id == this.state.currentViewId)[0]});
+    this.setGridState();
     this.showLoader();
-    //this.aggridcss();
-    this.props.getGridViewStructure(id);
-    this.props.getGridViewState(id);
-    this.props.getGridViewData(this.state.recordCount);
+    console.log(this.state.currentViewId)
+    const respGridData = await this.getGridData(this.state.currentViewId);
+    //this.state.gridOptions.api.setRowData(respGridData)
+    this.hideLoader();
+  }
+
+  async reportClick (id) {
+    this.setState({ click: true, currentViewId: id, currentViewName: this.state.reportStateList.filter(x => x.view_id == id)[0].view_name });
+    this.showLoader();
+    await this.props.getGridViewStructure(id);
+    await this.props.getGridViewState(id);
+   // this.setState({ currentState: this.props.gridviewstate.filter(x => x.id == id)[0]});
+    localStorage.setItem('previousGridViewState', this.state.currentState);
+    this.setPreviousFilteredColGroupState( this.state.currentState)
+    this.setGridState();
+    await this.props.getGridViewData(this.state.currentViewId);
     this.hideLoader();
 
   }
-
+  
+  setGridState()
+  {
+    var data = this.state.currentState;
+    this.state.gridOptions.columnApi.setColumnState((JSON.parse(data.col_state)));
+    this.state.gridOptions.columnApi.setColumnGroupState(JSON.parse(data.group_state));
+    this.state.gridOptions.api.setSortModel(JSON.parse(data.sort_state));
+    this.state.gridOptions.api.setFilterModel(JSON.parse(data.filter_state));
+    this.state.gridOptions.columnApi.setPivotMode(data.is_pivot_mode)
+  }
 
   render() {
     this.createViewList();
@@ -702,7 +828,7 @@ class ReportView extends Component {
                                 className="dvChoosedView ember-power-select-trigger saved-list-view-trigger"
                                 data-toggle="dropdown">
                                 <span id="spChoosedView"
-                                  className="ember-power-select-selected-item">{this.state.displayChoosedView}</span>
+                                  className="ember-power-select-selected-item">{this.state.currentViewName}</span>
                                 <span style={{ lineHeight: "24px", marginLeft: "1.3em" }}
                                   className="fa fa-caret-down fa-lg pull-right"></span>
                               </div>
@@ -828,9 +954,6 @@ class ReportView extends Component {
 }
 
 const mapStateToProps = state => {
-  //state["App"].LINK_CLICK =true
-
-  // this.setState({click: state["App"].linkClick});
   return {
     gridviewstructure: state.GridView.gridviewstructure,
     gridviewstate: state.GridView.gridviewstate,

@@ -16,7 +16,7 @@ const actions = {
     GET_GRIDVIEW_STRUCTURE_ERROR: 'GET_GRIDVIEW_STRUCTURE_ERROR',
     GET_GRIDVIEW_DATA_SUCCESS: 'GET_GRIDVIEW_DATA_SUCCESS',
     GET_GRIDVIEW_DATA_ERROR: 'GET_GRIDVIEW_DATA_ERROR',
-    GET_GRIDVIEW_STATE_SUCCESS: 'GET_GRIDVIEW_DATA_SUCCESS',
+    GET_GRIDVIEW_STATE_SUCCESS: 'GET_GRIDVIEW_STATE_SUCCESS',
     GET_GRIDVIEW_STATE_ERROR: 'GET_GRIDVIEW_DATA_ERROR',
 
     getGridViewStructureSuccess: (structure) => {
@@ -43,10 +43,10 @@ const actions = {
             error: error
         }
     },
-    getGridViewStateSuccess: (data) => {
+    getGridViewStateSuccess: (state) => {
         return {
             type: actions.GET_GRIDVIEW_STATE_SUCCESS,
-            payload: data
+            payload: state
         }
     },
     getGridViewStateError: (error) => {
@@ -67,7 +67,7 @@ export const GetGridViewStructureAction = (id) => {
             },
             body: JSON.stringify({
                 view_id: id,
-                email_id: "abc@colpal.com"
+                user_id: "abc@colpal.com"
             })
         })
             .then(r => {
@@ -96,8 +96,8 @@ export const GetGridViewStateAction = (id) => {
                 'Authorization': 'Bearer ' + localStorage.getItem('idToken')
             },
             body: JSON.stringify({
-                user_id: id,
-                email_id: "abc@colpal.com"
+                user_id: id
+               //, email_id: "abc@colpal.com"
             })
         })
             .then(r => {
@@ -119,9 +119,19 @@ export const GetGridViewStateAction = (id) => {
 
 export const GetGridViewDataAction = (id) => {
     return dispatch => {
-        // dispatch(actions.getAssortmentsPending());
-        fetch(`${base_url}/GetGridViewData?data=` + id, authHeaders())
-            .then(res => res.json())
+        return fetch(`${base_url}/api/v1/get_report_data_bq/fetch_bq_report/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('idToken')
+            },
+            body: JSON.stringify({
+                  user_id: "kevin_gordon@colpal.com"
+            })
+        })
+            .then(r => {
+                return r.json()
+            })
             .then(res => {
                 if (res.error) {
                     throw (res.error);
@@ -133,5 +143,7 @@ export const GetGridViewDataAction = (id) => {
                 dispatch(actions.getGridViewDataError(error));
             })
     }
+
 };
+
 export default actions;
