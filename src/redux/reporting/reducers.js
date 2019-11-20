@@ -4,6 +4,7 @@ const initState = {
     gridviewstructure: [],
     gridviewdata: [],
     gridviewstate: [],
+    user: [],
     pending: false,
     error: null,
 };
@@ -61,7 +62,23 @@ const reducer = (state = initState, action) => {
                 pending: false,
                 error: action.error
             };
-
+        case actions.GET_USER_DATA:
+            return {
+                ...state,
+                pending: false
+            };
+        case actions.GET_USER_SUCCESS:
+            return {
+                ...state,
+                pending: false,
+                user: action.payload
+            };
+        case actions.GET__ERROR:
+            return {
+                ...state,
+                pending: false,
+                error: action.error
+            };
         default:
             return state;
     }

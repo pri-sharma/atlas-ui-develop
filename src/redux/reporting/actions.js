@@ -7,17 +7,24 @@ const authHeaders = () => ({
         'Authorization': 'Bearer ' + localStorage.getItem('idToken')
     }
 });
+const userID = localStorage.getItem('UserID');
 
 const actions = {
     GET_GRIDVIEW_STRUCTURE: 'GET_GRIDVIEW_STRUCTURE',
-    GET_GRIDVIEW_DATA: 'GET_GRIDVIEW_DATA',
-    GET_GRIDVIEW_STATE: 'GET_GRIDVIEW_STATE',
     GET_GRIDVIEW_STRUCTURE_SUCCESS: 'GET_GRIDVIEW_STRUCTURE_SUCCESS',
     GET_GRIDVIEW_STRUCTURE_ERROR: 'GET_GRIDVIEW_STRUCTURE_ERROR',
-    GET_GRIDVIEW_DATA_SUCCESS: 'GET_GRIDVIEW_DATA_SUCCESS',
-    GET_GRIDVIEW_DATA_ERROR: 'GET_GRIDVIEW_DATA_ERROR',
+
+    GET_GRIDVIEW_STATE: 'GET_GRIDVIEW_STATE',
     GET_GRIDVIEW_STATE_SUCCESS: 'GET_GRIDVIEW_STATE_SUCCESS',
     GET_GRIDVIEW_STATE_ERROR: 'GET_GRIDVIEW_DATA_ERROR',
+
+    GET_GRIDVIEW_DATA: 'GET_GRIDVIEW_DATA',
+    GET_GRIDVIEW_DATA_SUCCESS: 'GET_GRIDVIEW_DATA_SUCCESS',
+    GET_GRIDVIEW_DATA_ERROR: 'GET_GRIDVIEW_DATA_ERROR',
+
+    GET_USER: 'GET_USER',
+    GET_USER_SUCCESS: 'GET_USER_SUCCESS',
+    GET_USER_ERROR: 'GET_USER_ERROR',
 
     getGridViewStructureSuccess: (structure) => {
         return {
@@ -52,6 +59,18 @@ const actions = {
     getGridViewStateError: (error) => {
         return {
             type: actions.GET_GRIDVIEW_STATE_ERROR,
+            error: error
+        }
+    },
+    getUserSuccess: (user) => {
+        return {
+            type: actions.GET_USER_SUCCESS,
+            payload: user
+        }
+    },
+    getUserError: (error) => {
+        return {
+            type: actions.GET_USER_ERROR,
             error: error
         }
     }
@@ -97,7 +116,6 @@ export const GetGridViewStateAction = (id) => {
             },
             body: JSON.stringify({
                 user_id: id
-               //, email_id: "abc@colpal.com"
             })
         })
             .then(r => {
@@ -126,7 +144,7 @@ export const GetGridViewDataAction = (id) => {
                 'Authorization': 'Bearer ' + localStorage.getItem('idToken')
             },
             body: JSON.stringify({
-                  user_id: "kevin_gordon@colpal.com"
+                user_id: "kevin_gordon@colpal.com"
             })
         })
             .then(r => {
@@ -144,6 +162,23 @@ export const GetGridViewDataAction = (id) => {
             })
     }
 
+};
+
+export const getUserInfoAction = () => {
+    return dispatch => {
+              fetch(`${base_url}/api/v1/userinfo/fetch_user_detail/`, authHeaders())
+            .then(res => res.json())
+            .then(res => {
+                if (res.error) {
+                    throw (res.error);
+                }
+                dispatch(actions.getUserSuccess(res));
+                return res;
+            })
+            .catch(error => {
+                dispatch(actions.getUserError(error));
+            })
+    }
 };
 
 export default actions;

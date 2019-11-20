@@ -30,8 +30,8 @@ class Sidebar extends Component {
     handleClick(e) {
         //alert(e.key)
         if (e.key != 'reporting') {
-              this.removejscssfile("bootstrap.min.js", "js") //remove all occurences of "somescript.js" on page
-              this.removejscssfile("bootstrap.min.css", "css") //remove all occurences "somestyle.css" on page
+            this.removejscssfile("bootstrap.min.js", "js") //remove all occurences of "somescript.js" on page
+            this.removejscssfile("bootstrap.min.css", "css") //remove all occurences "somestyle.css" on page
         } else {
 
             this.loadjscssfile("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js", "js") //dynamically load and add this .js file
@@ -106,11 +106,11 @@ class Sidebar extends Component {
         if (this.props.app.current[0] != 'reporting') {
             this.removejscssfile("bootstrap.min.js", "js") //remove all occurences of "somescript.js" on page
             this.removejscssfile("bootstrap.min.css", "css") //remove all occurences "somestyle.css" on page
-      } else {
+        } else {
 
-          this.loadjscssfile("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js", "js") //dynamically load and add this .js file
-          this.loadjscssfile("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css", "css") //dynamically load "javascript.php" as a JavaScript file
-      }
+            this.loadjscssfile("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js", "js") //dynamically load and add this .js file
+            this.loadjscssfile("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css", "css") //dynamically load "javascript.php" as a JavaScript file
+        }
         return (
             <Menu.Item key={key} className='customClass'>
                 <Link
