@@ -31,7 +31,7 @@
     "h2x-core": "1.1.1",
     "h2x-plugin-jsx": "1.2.0",
     "istanbul-api": "1.3.7",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "jwt-decode": "2.2.0",
     "lodash": "^4.17.15",
     "material-table": "^1.52.0",
